@@ -19,6 +19,8 @@ assets/video/
 assets/diagrams/
 
 # Local-only meme assets: visible in the instructor deck, omitted from the public repo
+/meme-plan.json
+/밈-삽입-계획.md
 assets/memes/bike-fall.jpg
 assets/memes/skill-plugin-bulls.webp
 assets/memes/confused-travolta.jpg
