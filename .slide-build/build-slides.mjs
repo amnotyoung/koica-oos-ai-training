@@ -130,6 +130,39 @@ function mdToHtml(markdown = "") {
   return output.join("\n");
 }
 
+function localVideo({ src, poster, ariaLabel, caption, extraClass = "" }) {
+  return `
+    <figure class="demo-video-frame local-asset-shell ${extraClass}">
+      <div class="local-asset-primary">
+        <video data-local-asset controls preload="metadata" playsinline poster="${poster}" aria-label="${escapeHtml(ariaLabel)}">
+          <source src="${src}" type="video/mp4">
+        </video>
+      </div>
+      <div class="asset-fallback" role="img" aria-label="${escapeHtml(ariaLabel)}">
+        <span>▶</span>
+        <strong>내부 시연 영상</strong>
+        <small>공개 저장소에는 포함하지 않습니다.<br>강의 현장에서는 로컬 영상을 재생합니다.</small>
+      </div>
+      <figcaption>${caption}</figcaption>
+    </figure>`;
+}
+
+function localImageFigure({ className, assetSource, src, alt, caption, note, fallbackTitle, fallbackBody }) {
+  return `
+    <figure class="source-figure local-asset-shell ${className}" data-asset-source="${assetSource}">
+      <div class="local-asset-primary">
+        <img data-local-asset src="${src}" alt="${escapeHtml(alt)}">
+      </div>
+      <div class="asset-fallback" role="img" aria-label="${escapeHtml(alt)}">
+        <span>↗</span>
+        <strong>${escapeHtml(fallbackTitle)}</strong>
+        <small>${fallbackBody}</small>
+      </div>
+      <figcaption>${caption}</figcaption>
+      <small>${note}</small>
+    </figure>`;
+}
+
 function parseSlides(markdown) {
   const lines = markdown.split(/\r?\n/);
   const slides = [];
@@ -171,15 +204,16 @@ function parseSlides(markdown) {
       currentPart = partMatch[1];
       continue;
     }
-    const slideMatch = line.match(/^##\s+Slide\s+(\d+)\s+—\s+(.+)$/);
+    const slideMatch = line.match(/^##\s+Slide\s+(\d+(?:\.\d+)?)\s+—\s+(.+)$/);
     const appendixMatch = line.match(/^##\s+Appendix\s+(\d+)\s+—\s+(.+)$/);
     if (slideMatch || appendixMatch) {
       finish();
       if (slideMatch) {
+        const slideNumber = slideMatch[1];
         current = {
           kind: "slide",
-          number: Number(slideMatch[1]),
-          id: `slide-${slideMatch[1]}`,
+          number: Number(slideNumber),
+          id: `slide-${slideNumber.replace(".", "-")}`,
           title: slideMatch[2],
           body: [],
         };
@@ -201,29 +235,29 @@ function parseSlides(markdown) {
 }
 
 const originalSlides = parseSlides(source);
-const memeTransition = {
-  kind: "meme",
-  number: 33.5,
-  id: "meme-skill-plugin",
-  title: "Skill과 Plugin은 함께 완성됩니다",
-  part: "5부. 반복을 스킬로, 공유를 플러그인으로",
+const harnessTransition = {
+  kind: "transition",
+  number: 46.5,
+  id: "harness-anti-pattern",
+  title: "하네스 없이 밤새 돌리면 실패를 자동화한다",
+  part: "7부. GitHub에서 축적하고 반복하기",
   screen: "",
   visual: "",
   notes:
-    "Skill은 Claude가 일하는 방법이고, Plugin은 그 능력을 설치하고 공유하는 단위입니다. 둘 중 하나를 고르는 관계가 아니라 결합하는 관계입니다.",
-  sources:
-    "- 사용자가 제공한 로컬 이미지\n- 내부 교육용 사용. 이미지 재사용 권리 미확인.",
+    "밤새 실행 자체가 문제가 아니라 완료 조건과 자동 검증을 생략한 것이 문제입니다. MCP, Skill, Plugin, 폴더 구조, 완료 조건과 자동 검증을 함께 묶은 작업 환경이 하네스(Harness)입니다. 권리가 확인되지 않은 Bike Fall 이미지는 제거하고 실패 구조만 남겼습니다.",
+  sources: "",
 };
 
 const sectionBumpers = new Map([
+  [2, ["01", "AI를 대화창 밖으로 꺼낸다", "Claude Code와 Codex로 파일을 남기는 일부터"]],
   [5, ["02", "도구와 원천을 연결한다", "말 잘하는 AI를 근거를 확인하는 업무 도구로"]],
   [12, ["03", "파일을 AI가 읽는 형태로 바꾼다", "보이는 원본을 검산 가능한 텍스트로"]],
   [18, ["04", "쌓인 자료를 관계 있는 지식으로 만든다", "Brain dumping에서 LLM Wiki로"]],
   [25, ["05", "반복은 Skill로, 공유는 Plugin으로", "한 번 잘한 일을 동료도 재현하게"]],
-  [34, ["06", "계획부터 웹앱 배포까지", "Opus로 계획하고 Sonnet으로 실행한다"]],
+  [34, ["06", "선택 실습 · 계획부터 웹앱 배포까지", "현장 분위기와 남은 시간에 따라 진행하거나 건너뛴다"]],
   [42, ["07", "GitHub에 축적하고 원격으로 확인한다", "변경을 기록하고, 자리를 비워도 상태를 본다"]],
   [49, ["08", "KOICA 동료의 실제 프로젝트", "작은 불편함이 도구와 공공자산으로 이어진다"]],
-  [54, ["09", "트렌드를 따라가는 최소 습관", "하루 5분, 실제 사용 기록을 읽고 남긴다"]],
+  [54, ["09", "트렌드를 따라가는 계정을 찾는다", "최신 트렌드와 함의, 유즈케이스를 소개하는 계정을 따라간다"]],
 ]);
 
 const slides = [];
@@ -244,18 +278,36 @@ for (const slide of originalSlides) {
     });
   }
   slides.push(slide);
-  if (slide.kind === "slide" && slide.number === 33) slides.push(memeTransition);
+  if (slide.kind === "slide" && slide.number === 46) slides.push(harnessTransition);
 }
 
 function semanticLayout(slide) {
   if (slide.kind === "divider") return "part-divider";
   if (slide.id === "slide-01") return "cover";
-  if (slide.id === "slide-17") return "meme-sidecar";
-  if (slide.id === "meme-skill-plugin") return "meme-handshake";
-  if (["slide-06", "slide-07", "slide-08", "slide-09"].includes(slide.id)) return "tool-link statement";
+  if (slide.id === "slide-1-1") return "agenda-slide";
+  if (slide.id === "slide-1-2") return "environment-setup";
+  if (slide.id === "slide-03") return "start-tools";
+  if (slide.id === "slide-04") return "project-remix";
+  if (slide.id === "slide-12") return "parsing-explainer";
+  if (slide.id === "slide-17") return "docufinder-slide";
+  if (slide.id === "slide-18") return "brain-dump-visual";
+  if (slide.id === "slide-18-1") return "wiki-practice";
+  if (slide.id === "slide-19") return "wiki-flow wiki-video";
+  if (slide.id === "slide-27") return "steps skill-training";
+  if (slide.id === "slide-28") return "skill-lifecycle";
+  if (slide.id === "slide-31") return "plugin-parts";
+  if (slide.id === "slide-30") return "skill-plugin-meme";
+  if (slide.id === "harness-anti-pattern") return "harness-antipattern";
+  if (["slide-06", "slide-07", "slide-09"].includes(slide.id)) return "tool-link tool-video";
+  if (slide.id === "slide-08") return "tool-link tool-video";
+  if (slide.id === "slide-34") return "statement one-line-statement";
   if (slide.id === "slide-35") return "model-plan";
+  if (slide.id === "slide-37") return "supabase-demo";
   if (slide.id === "slide-46") return "loop-engineering";
   if (slide.id === "slide-47") return "remote-setup";
+  if (slide.id === "slide-44") return "own-repo";
+  if (slide.id === "slide-42") return "git-history-slide";
+  if (slide.id === "slide-22") return "graphrag-comparison";
   if (["slide-50", "slide-51", "slide-52"].includes(slide.id)) return "project-links";
   if (slide.id === "slide-54") return "threads-slide";
   if (slide.screen.includes("|---")) return "table";
@@ -268,13 +320,35 @@ function semanticLayout(slide) {
 
 function specialContent(slide) {
   if (slide.kind === "divider") {
+    const optional = slide.number === 6;
     return `
       <div class="divider-copy">
-        <div class="divider-part">PART ${escapeHtml(slide.subtitle ? String(slide.number).padStart(2, "0") : "")}</div>
+        <div class="divider-part">PART ${escapeHtml(slide.subtitle ? String(slide.number).padStart(2, "0") : "")}${optional ? " · OPTIONAL" : ""}</div>
         <h2 class="title divider-title">${escapeHtml(slide.title)}</h2>
         <p>${escapeHtml(slide.subtitle || "")}</p>
         <div class="divider-rule"></div>
         <span class="divider-number">${String(slide.number).padStart(2, "0")}</span>
+      </div>`;
+  }
+
+  if (slide.id === "slide-12") {
+    return `
+      <div class="parsing-explainer-layout">
+        <div class="parsing-explainer-copy">
+          <p>사람에게는 <strong>한 장의 문서</strong></p>
+          <p>AI에게는 <strong>해석해야 할 구조</strong></p>
+          <div>파일을 열 수 있다 <b>≠</b> 내용을 정확히 이해했다</div>
+        </div>
+        ${localImageFigure({
+          className: "parsing-structure-figure",
+          assetSource: "https://image.inblog.dev/?url=https%3A%2F%2Fsource.inblog.dev%2Fpost_image%2F2025-07-02T01%3A29%3A17.805Z-759de728-fd24-4db9-80d2-4763c3319577&amp;w=828&amp;q=85",
+          src: "assets/diagrams/document-parsing-structure.webp",
+          alt: "약제비 납입 확인서의 표 영역이 HTML 제목과 행·열 태그 구조로 변환되는 예시",
+          caption: "보이는 문서 한 장이 내부에서는 태그·행·병합 셀 구조로 바뀐다.",
+          note: "사용자 제공 URL · rights unverified · internal only",
+          fallbackTitle: "문서 → 구조",
+          fallbackBody: "제목 · 문단 · 표 · 행 · 열 · 병합 셀<br>AI는 이 구조를 해석해야 합니다.",
+        })}
       </div>`;
   }
 
@@ -286,6 +360,73 @@ function specialContent(slide) {
         <p>Claude Code · MCP · LLM Wiki · Skills · Plugins · Web · GitHub</p>
         <div class="signal-line"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       </div>`;
+  }
+
+  if (slide.id === "slide-1-1") {
+    const agendaItems = [
+      ["01", "시작", "Claude Code · Codex"],
+      ["02", "연결", "MCP 도구 · 업무 흐름"],
+      ["03", "변환", "바이너리 → 텍스트"],
+      ["04", "지식", "Brain dumping · LLM Wiki"],
+      ["05", "재사용", "Skill · Plugin"],
+      ["06", "웹앱", "계획 모드 · 배포", "선택"],
+      ["07", "축적", "GitHub · 원격 확인"],
+      ["08", "사례", "KOICA 동료 프로젝트"],
+      ["09", "트렌드", "계속 따라가는 방법"],
+    ];
+    return `
+      <div class="agenda-grid">
+        ${agendaItems
+          .map(
+            ([number, label, description, optional]) => `
+              <div class="agenda-card${optional ? " optional" : ""}">
+                <span>${number}</span>
+                <strong>${label}${optional ? '<small>선택</small>' : ""}</strong>
+                <p>${description}</p>
+              </div>`
+          )
+          .join("")}
+      </div>`;
+  }
+
+  if (slide.id === "slide-1-2") {
+    return `
+      <div class="environment-grid">
+        <div class="environment-card mac">
+          <small>macOS</small>
+          <strong>Claude Code + Terminal</strong>
+          <code>python3 -m http.server 8000</code>
+        </div>
+        <div class="environment-card windows">
+          <small>Windows</small>
+          <strong>Claude Code + PowerShell / Git Bash</strong>
+          <span>Git for Windows</span>
+          <code>py -m http.server 8000</code>
+        </div>
+        <div class="environment-card common">
+          <small>공통 준비</small>
+          <strong>Node.js · 최신 브라우저 · 프로젝트 폴더</strong>
+          <span>공백이 있는 경로는 따옴표로 감싼다</span>
+        </div>
+      </div>
+      <p class="environment-note"><b>6부 · 선택</b> Cloudflare Wrangler는 macOS 13.5+ · Windows 11에서 실습합니다. Windows 10은 시연만 봅니다.</p>`;
+  }
+
+  if (slide.id === "slide-04") {
+    return `
+      <div class="remix-flow">
+        <div class="remix-sources">
+          <span>lunch-time-claude-camp</span>
+          <span>과거 교육 자료</span>
+          <span>DPGA 자료</span>
+          <span>개인 프로젝트 기록</span>
+        </div>
+        <b>→</b>
+        <div class="remix-agent"><small>AI AGENT</small><strong>읽기 · 분해</strong><strong>선별 · 재연결</strong></div>
+        <b>→</b>
+        <div class="remix-output"><small>현재 프로젝트</small><strong>KOICA AI·데이터<br>교육자료</strong><span>다음 작업의 재료로 남는다</span></div>
+      </div>
+      <p class="big-conclusion">AI와 함께 일한 결과가 <strong>다음 프로젝트의 재료</strong>가 됩니다.</p>`;
   }
 
   if (slide.id === "slide-02") {
@@ -308,16 +449,91 @@ function specialContent(slide) {
       <p class="big-conclusion">AI에게 <strong>손을 달아주는</strong> 공통 연결 단자</p>`;
   }
 
+  if (slide.id === "slide-06") {
+    return `
+      <div class="demo-video-layout">
+        <div class="demo-video-copy">
+          <strong class="tool-name">koica-reg</strong>
+          <p>“이 규정이 실제로 존재하는가?”</p>
+          <p>“정확히 몇 조인가?”</p>
+          <p>“관련 규정은 어디로 이어지는가?”</p>
+          <a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">도구 안내 · amnotyoung/koica-reg-mcp ↗</a>
+        </div>
+        ${localVideo({
+          src: "assets/video/koica-reg-demo.mp4",
+          poster: "assets/video/koica-reg-poster.jpg",
+          ariaLabel: "koica-reg MCP 규정 검색 시연 영상",
+          caption: "KOICA 규정 검색 → 조문 확인 → 근거 정리",
+        })}
+      </div>`;
+  }
+
+  if (slide.id === "slide-07") {
+    return `
+      <div class="demo-video-layout">
+        <div class="demo-video-copy">
+          <strong class="tool-name">korean-law</strong>
+          <p>KOICA 규정과 한국 법령은</p>
+          <p class="accent-copy">서로 다른 원천이다</p>
+          <p>필요하면 두 도구를 함께 사용한다</p>
+          <a href="https://github.com/chrisryugj/korean-law-mcp" target="_blank" rel="noreferrer">도구 안내 · chrisryugj/korean-law-mcp ↗</a>
+        </div>
+        ${localVideo({
+          src: "assets/video/korean-law-demo.mp4",
+          poster: "assets/video/korean-law-poster.jpg",
+          ariaLabel: "korean-law MCP 법령 검색 시연 영상",
+          caption: "내부 규정과 대한민국 법령을 원천별로 검토",
+        })}
+      </div>`;
+  }
+
+  if (slide.id === "slide-08") {
+    return `
+      <div class="demo-video-layout">
+        <div class="demo-video-copy">
+          <strong class="tool-name">kordoc</strong>
+          <div class="compact-flow"><span>HWP · HWPX · PDF · Office</span><b>↓</b><span>파싱</span><b>↓</b><span>Markdown</span></div>
+          <a href="https://github.com/chrisryugj/kordoc" target="_blank" rel="noreferrer">도구 안내 · chrisryugj/kordoc ↗</a>
+        </div>
+        ${localVideo({
+          src: "assets/video/kordoc-demo.mp4",
+          poster: "assets/video/kordoc-poster.jpg",
+          ariaLabel: "kordoc으로 HWP 문서를 Markdown으로 변환하는 시연 영상",
+          caption: "HWP 원본을 파싱해 검토 가능한 Markdown으로 변환",
+        })}
+      </div>`;
+  }
+
+  if (slide.id === "slide-09") {
+    return `
+      <div class="demo-video-layout">
+        <div class="demo-video-copy">
+          <strong class="tool-name">Tiro</strong>
+          <div class="compact-flow"><span>회의 음성</span><b>↓</b><span>회의록.md · 요약 · 화자별 발화</span><b>↓</b><span>Claude Code의 컨텍스트</span></div>
+          <a href="https://docs.tiro.ooo/ko/developers/mcp/mcp-overview" target="_blank" rel="noreferrer">Tiro MCP 공식 안내 ↗</a>
+        </div>
+        ${localVideo({
+          src: "assets/video/tiro-demo.mp4",
+          poster: "assets/video/tiro-poster.jpg",
+          ariaLabel: "Tiro 회의록 조회 시연 영상",
+          caption: "회의록을 불러와 최근 논의와 결정사항 정리",
+        })}
+      </div>`;
+  }
+
   if (slide.id === "slide-10") {
     return `
-      <div class="pipeline">
-        <div><small>01</small><strong>Tiro 회의</strong><span>말을 기록한다</span></div>
+      <div class="workflow-fusion">
+        <div class="workflow-inputs">
+          <div><small>01 · 회의</small><strong>Tiro</strong><span>회의록.md</span></div>
+          <div><small>02 · 기존 문서</small><strong>HWP → kordoc</strong><span>기존문서.md</span></div>
+        </div>
         <b>→</b>
-        <div><small>02</small><strong>kordoc</strong><span>문서를 텍스트로</span></div>
+        <div class="workflow-merge"><small>03 · 연결</small><strong>회의록과 기존 문서</strong><span>관련 내용을 함께 읽는다</span></div>
         <b>→</b>
-        <div><small>03</small><strong>규정 + 법령</strong><span>근거를 검증한다</span></div>
+        <div class="workflow-check"><small>04 · 검토</small><strong>koica-reg + korean-law</strong><span>규정·법령 근거 확인</span></div>
         <b>→</b>
-        <div class="accent"><small>04</small><strong>산출물</strong><span>MD · CSV · 근거표</span></div>
+        <div class="workflow-output"><small>05 · 산출물</small><strong>MD · CSV · 근거표</strong></div>
       </div>`;
   }
 
@@ -333,16 +549,84 @@ function specialContent(slide) {
 
   if (slide.id === "slide-17") {
     return `
-      <div class="meme-sidecar-grid">
-        <div class="meme-setup">
-          <div class="scatter-list"><span>다운로드 폴더</span><span>메신저 첨부파일</span><span>회의 메모</span><span>브라우저 북마크</span><span>내 머릿속의 연결</span></div>
-          <p>쌓였지만 아직 <strong>지식은 아닙니다</strong></p>
+      <div class="docufinder-layout">
+        <div class="docufinder-copy">
+          <strong>Docufinder <span>· Anything</span></strong>
+          <ul>
+            <li>폴더를 등록하면 문서 본문을 자동으로 인덱싱</li>
+            <li>HWP · PDF · Office · 이미지까지 검색</li>
+            <li>파일 이름을 몰라도 내용으로 찾기</li>
+            <li>AI 기능을 끄면 로컬 검색 도구로 사용</li>
+          </ul>
+          <a href="https://github.com/chrisryugj/Docufinder" target="_blank" rel="noreferrer">chrisryugj/Docufinder ↗</a>
         </div>
-        <figure class="slide-meme" data-meme-role="reaction" data-meme-source="https://knowyourmeme.com/memes/confused-travolta/" data-meme-origin="searched">
-          <img src="assets/memes/confused-travolta.jpg" alt="방 안을 둘러보며 찾는 대상을 발견하지 못한 듯한 남성">
-          <figcaption>분명 저장했습니다.<br><strong>어디에 저장했는지만 빼고.</strong></figcaption>
-          <small>Confused Travolta · rights unclear · internal only</small>
-        </figure>
+        ${localVideo({
+          src: "assets/video/docufinder-demo.mp4",
+          poster: "assets/video/docufinder-poster.jpg",
+          ariaLabel: "Docufinder에서 폴더의 문서 본문을 검색하는 시연 영상",
+          caption: "폴더 등록 → 본문 검색 → 관련 문서 확인",
+          extraClass: "docufinder-video",
+        })}
+      </div>`;
+  }
+
+  if (slide.id === "slide-18") {
+    return `
+      <div class="brain-dump-layout">
+        <div class="brain-dump-copy">
+          <strong>Brain dumping</strong>
+          <p>완벽하게 분류한 뒤 기록하지 않는다</p>
+          <p>생각 · 링크 · 문서 · 메모를 먼저 남긴다</p>
+        </div>
+        <div class="brain-dump-flow" aria-label="사용자가 원자료를 한 폴더에 넣으면 LLM이 파싱하고 색인하는 흐름">
+          <div class="raw-inbox">
+            <span class="loose-note note-a">회의 메모</span>
+            <span class="loose-note note-b">문서</span>
+            <span class="loose-note note-c">링크</span>
+            <span class="loose-note note-d">아이디어</span>
+            <strong>한 폴더</strong>
+            <small>일단 넣는다</small>
+          </div>
+          <b>→</b>
+          <div class="llm-organizer"><small>LLM</small><strong>Parsing<br>Indexing</strong><span>나중에 정리한다</span></div>
+        </div>
+      </div>
+      <p class="big-conclusion">사용자는 <strong>쌓고</strong>, 정리와 색인은 <strong>LLM이 맡습니다.</strong></p>`;
+  }
+
+  if (slide.id === "slide-18-1") {
+    return `
+      <div class="wiki-practice-steps">
+        <div><small>01 · USER</small><strong>Raw data 폴더</strong><span>자료를 계속 한곳에 넣는다</span></div>
+        <b>→</b>
+        <div class="accent"><small>02 · LLM</small><strong>Parsing · Indexing</strong><span>페이지·관계 생성과 유지관리</span></div>
+        <b>→</b>
+        <div><small>03 · OPTIONAL</small><strong>Obsidian</strong><span>Markdown Wiki를 직접 탐색</span></div>
+      </div>
+      <blockquote>“이 자료들로 LLM Wiki를 만들고 관리해줘.”</blockquote>
+      <p class="practice-note">사용자는 <strong>raw data</strong>를 넣고, LLM이 <strong>parsing·indexing·관리</strong>를 맡습니다.</p>`;
+  }
+
+  if (slide.id === "slide-19") {
+    return `
+      <div class="wiki-video-layout">
+        <div class="wiki-flow-copy">
+          <strong>LLM Wiki의 기본 흐름</strong>
+          <ol>
+            <li><b>검색</b><span>관련 페이지를 찾는다</span></li>
+            <li><b>원문</b><span>페이지 내용을 확인한다</span></li>
+            <li><b>언급</b><span>연결된 노트와 문서를 추적한다</span></li>
+            <li><b>그래프</b><span>페이지 사이 관계망을 따라간다</span></li>
+          </ol>
+          <p>AI는 질문에 필요한 깊이만큼 단계적으로 조회한다</p>
+        </div>
+        ${localVideo({
+          src: "assets/video/llm-wiki-graph-demo.mp4",
+          poster: "assets/video/llm-wiki-graph-poster.jpg",
+          ariaLabel: "LLM Wiki 관계 그래프 탐색 시연 영상",
+          caption: "페이지 관계망을 따라 필요한 노드로 이동",
+          extraClass: "wiki-graph-video",
+        })}
       </div>`;
   }
 
@@ -356,12 +640,26 @@ function specialContent(slide) {
       <p class="big-conclusion">AI가 모르는 관련성을 <strong>사용자는 알고 있습니다.</strong></p>`;
   }
 
+  if (slide.id === "slide-22") {
+    return `
+      ${localImageFigure({
+        className: "graphrag-figure",
+        assetSource: "https://machinelearningmastery.com/wp-content/uploads/2026/03/mlm-agentic-memory-vector-vs-graph.png",
+        src: "assets/diagrams/vector-vs-graph-rag.png",
+        alt: "Vector Memory는 의미 유사도로 문서를 찾고 Graph Memory는 노드와 관계를 따라 여러 단계를 추론한다는 비교 도식",
+        caption: "Vector는 가까운 문서를 찾고, Graph는 <strong>명시된 관계의 경로</strong>를 따라간다.",
+        note: "사용자 제공 URL · rights unverified · internal only",
+        fallbackTitle: "Vector 검색 ↔ Graph 탐색",
+        fallbackBody: "Vector: 의미가 가까운 문서<br>Graph: 노드와 관계를 잇는 경로",
+      })}`;
+  }
+
   if (slide.id === "slide-24") {
     return `
       <div class="cycle">
-        <span>수집</span><b>→</b><span>정리</span><b>→</b><span>연결</span><b>→</b><span>질문</span><b>→</b><span>새 통찰</span><b>→</b><span>Lint</span>
+        <span>Raw data</span><b>→</b><span>Parsing</span><b>→</b><span>Indexing</span><b>→</b><span>관계 연결</span><b>→</b><span>Lint</span><b>→</b><span>보고</span>
       </div>
-      <p class="big-conclusion">업무 중 생긴 질문과 수정이 다시 Wiki로 돌아올 때 지식이 쌓입니다.</p>`;
+      <p class="big-conclusion">사용자는 원자료를 넣고 판단합니다. <strong>정리·색인·점검은 LLM이 반복합니다.</strong></p>`;
   }
 
   if (slide.id === "slide-25") {
@@ -374,34 +672,99 @@ function specialContent(slide) {
       <p class="big-conclusion">프롬프트를 반복하지 말고 <strong>일하는 절차를 저장합니다.</strong></p>`;
   }
 
-  if (slide.id === "meme-skill-plugin") {
+  if (slide.id === "slide-28") {
     return `
-      <figure class="slide-meme handshake-meme" data-meme-role="analogy" data-meme-source="user-provided" data-meme-origin="user-provided">
-        <div class="handshake-frame">
-          <img src="assets/memes/skill-plugin-bulls.webp" alt="붉은 농구 유니폼을 입은 두 선수가 손을 맞대며 협력하는 그림">
-          <span class="hand-label left">Skill<br><small>일하는 방법</small></span>
-          <span class="hand-label right">Plugin<br><small>설치·공유 단위</small></span>
-          <span class="hand-label center">동료도 같은 방식으로 일한다</span>
+      <div class="skill-lifecycle-flow">
+        <div><small>01</small><strong>잘 된 대화</strong></div><b>→</b>
+        <div class="accent"><small>02</small><strong>skill-creator</strong><span>Anthropic 제공 · 제작·평가 안내</span></div><b>→</b>
+        <div><small>03</small><strong>다른 질문</strong><span>검증</span></div><b>→</b>
+        <div><small>04</small><strong>규칙 · 예시</strong><span>보완</span></div><b>→</b>
+        <div class="git-step"><small>05</small><strong>Git</strong><span>버전 기록</span></div>
+      </div>
+      <p class="big-conclusion">검증과 보완을 반복하면 <strong>버전관리의 필요성</strong>이 자연스럽게 생깁니다.</p>`;
+  }
+
+  if (slide.id === "slide-31") {
+    return `
+      <div class="plugin-parts-grid">
+        <div><code>skills/</code><strong>이번 실습</strong><span>반복 가능한 Wiki 답변 규칙</span></div>
+        <div class="optional"><code>agents/</code><strong>선택</strong><span>전문 역할이 필요할 때만</span></div>
+        <div class="optional"><code>hooks/</code><strong>선택</strong><span>이벤트 자동화가 필요할 때만</span></div>
+        <div class="optional"><code>.mcp.json</code><strong>선택</strong><span>외부 도구 연결이 필요할 때만</span></div>
+      </div>
+      <p class="big-conclusion"><strong>모든 플러그인에 Agent와 Hook이 있는 것은 아닙니다.</strong></p>`;
+  }
+
+  if (slide.id === "slide-30") {
+    return `
+      <div class="skill-plugin-layout">
+        <div class="skill-plugin-copy">
+          <div><small>방법</small><strong>Skill</strong><span>Claude가 일하는 절차</span></div>
+          <div><small>전달</small><strong>Plugin</strong><span>그 능력을 묶어 설치·공유</span></div>
         </div>
-        <figcaption>Skill은 방법, Plugin은 전달.</figcaption>
-        <small>User-provided image · rights unverified · internal only</small>
+        <figure class="slide-meme local-asset-shell handshake-meme" data-meme-plan-id="meme-skill-plugin" data-meme-role="analogy" data-meme-template="User-provided collaboration image" data-meme-source="assets/memes/skill-plugin-bulls.webp" data-meme-origin="user-provided">
+          <div class="local-asset-primary">
+            <div class="handshake-frame">
+              <img data-local-asset src="assets/memes/skill-plugin-bulls.webp" alt="붉은 농구 유니폼을 입은 두 선수가 손을 맞대며 협력하는 그림">
+              <span class="hand-label left">Skill<br><small>일하는 방법</small></span>
+              <span class="hand-label right">Plugin<br><small>설치·공유 단위</small></span>
+              <span class="hand-label center">동료도 같은 방식으로 일한다</span>
+            </div>
+            <a class="meme-attribution" href="assets/memes/skill-plugin-bulls.webp">사용자 제공 exact asset · 원출처 미상 · 내부 라이브 교육용 예외 검토</a>
+          </div>
+          <div class="asset-fallback skill-plugin-fallback" role="img" aria-label="Skill에서 Plugin을 거쳐 동료가 같은 절차를 재현하는 흐름">
+            <div><small>HOW</small><strong>Skill</strong></div><b>→</b>
+            <div><small>PACKAGE</small><strong>Plugin</strong></div><b>→</b>
+            <div><small>SHARE</small><strong>동료의 재현</strong></div>
+            <small>공개본에서는 사용자 제공 이미지를 제외하고 같은 개념을 텍스트로 표시합니다.</small>
+          </div>
+          <figcaption>Skill은 방법, Plugin은 전달.</figcaption>
+        </figure>
+      </div>`;
+  }
+
+  if (slide.id === "harness-anti-pattern") {
+    return `
+      <figure class="slide-meme local-asset-shell bike-fall-meme" data-meme-plan-id="meme-loop-self-sabotage" data-meme-role="analogy" data-meme-template="Baton Roue / Bike Fall" data-meme-source="https://copart.canalblog.com/archives/2011/01/23/20199071.html" data-meme-origin="searched">
+        <div class="local-asset-primary">
+          <div class="bike-fall-grid">
+            <img data-local-asset src="assets/memes/bike-fall.jpg" alt="자전거를 타던 사람이 막대를 앞바퀴에 넣어 스스로 넘어지는 세 장면의 만화">
+            <div class="bike-fall-copy">
+              <div><small>01 · 시작</small><strong>AI를 밤새 실행</strong></div>
+              <div class="sabotage"><small>02 · 하네스 없음</small><strong>완료 조건 · 자동 검증 생략</strong></div>
+              <div class="blame"><small>03 · 남 탓</small><strong>“역시 AI는 못 믿어”</strong></div>
+            </div>
+          </div>
+          <a class="meme-attribution" href="https://copart.canalblog.com/archives/2011/01/23/20199071.html" target="_blank" rel="noreferrer">Corentin Penloup — Baton Roue 원작 · 내부 라이브 교육용 예외 검토</a>
+        </div>
+        <div class="asset-fallback meme-asset-fallback" role="img" aria-label="하네스가 없는 무인 실행은 실패를 자동화한다는 세 단계 설명">
+          <div class="failure-chain">
+            <div><small>01 · START</small><strong>AI를 밤새 실행</strong></div>
+            <b>→</b>
+            <div class="warning"><small>02 · MISSING</small><strong>완료 조건 · 자동 검증 없음</strong></div>
+            <b>→</b>
+            <div class="failure"><small>03 · RESULT</small><strong>실패도 밤새 누적</strong></div>
+          </div>
+          <small>공개본에서는 권리 불명확 이미지를 제외하고 같은 메시지를 텍스트로 표시합니다.</small>
+        </div>
+        <div class="harness-formula"><span>MCP</span><b>+</b><span>Skill</span><b>+</b><span>Plugin</span><b>+</b><span>폴더 구조</span><b>+</b><span>완료 조건</span><strong>Harness</strong></div>
+        <figcaption>하네스 없이 돌리고, <strong>실패는 AI 탓.</strong></figcaption>
       </figure>`;
   }
 
   if (slide.id === "slide-35") {
     return `
-      <div class="model-role-grid">
-        <div class="model-role plan">
-          <span>PLAN</span><strong>Opus</strong>
-          <ul><li>요구사항과 범위</li><li>구조와 위험</li><li>완료·검증 기준</li></ul>
-        </div>
+      <div class="model-platform-grid">
+        <div class="platform-name"><span>CLAUDE CODE</span><strong>Claude</strong></div>
+        <div class="model-role plan"><span>PLAN</span><strong>Opus</strong></div>
         <b>→</b>
-        <div class="model-role execute">
-          <span>BUILD</span><strong>Sonnet</strong>
-          <ul><li>계획에 따른 구현</li><li>반복 수정과 테스트</li><li>결과와 변경점 기록</li></ul>
-        </div>
+        <div class="model-role execute"><span>BUILD</span><strong>Sonnet</strong></div>
+        <div class="platform-name chatgpt"><span>CHATGPT CODEX</span><strong>ChatGPT</strong></div>
+        <div class="model-role plan"><span>PLAN</span><strong>sol</strong></div>
+        <b>→</b>
+        <div class="model-role execute"><span>BUILD</span><strong>terra</strong></div>
       </div>
-      <p class="big-conclusion">계획은 강한 추론에, 반복 실행은 속도와 비용 효율에 맡깁니다.</p>`;
+      <p class="big-conclusion">계획은 강한 추론에, 반복 실행은 빠른 모델에 맡깁니다.</p>`;
   }
 
   if (slide.id === "slide-36") {
@@ -410,6 +773,25 @@ function specialContent(slide) {
         <div><strong>프론트엔드</strong><span>사용자가 보고 누르는 화면</span></div>
         <div><strong>백엔드</strong><span>요청을 처리하는 로직</span></div>
         <div><strong>데이터베이스</strong><span>기억해야 할 정보</span></div>
+      </div>`;
+  }
+
+  if (slide.id === "slide-37") {
+    return `
+      <div class="supabase-demo-layout">
+        <div class="supabase-prompts">
+          <strong>Supabase MCP에 물어본다</strong>
+          <p>“현재 테이블 구조를 설명해줘.”</p>
+          <p>“Wiki 페이지와 관계를 저장할 구조를 제안해줘.”</p>
+          <p>“예제 데이터를 넣고 국가별 건수를 집계해줘.”</p>
+        </div>
+        ${localVideo({
+          src: "assets/video/supabase-demo.mp4",
+          poster: "assets/video/supabase-poster.jpg",
+          ariaLabel: "Supabase MCP로 데이터베이스 구조와 관계를 조회하는 시연 영상",
+          caption: "자연어 요청 → 실제 스키마 조회 → 테이블 관계 설명",
+          extraClass: "supabase-video",
+        })}
       </div>`;
   }
 
@@ -427,11 +809,33 @@ function specialContent(slide) {
   if (slide.id === "slide-40") {
     return `
       <div class="pipeline deployment">
-        <div><small>01</small><strong>완성 폴더</strong><span>빌드 결과 확인</span></div><b>→</b>
-        <div><small>02</small><strong>Wrangler</strong><span>Direct Upload</span></div><b>→</b>
-        <div class="accent"><small>03</small><strong>pages.dev</strong><span>브라우저 공유</span></div>
+        <div><small>처음 한 번</small><strong>로그인</strong><span>npx wrangler login</span></div><b>→</b>
+        <div class="accent"><small>배포</small><strong>폴더 배포</strong><span>Direct Upload · 없으면 질문 후 생성</span></div><b>→</b>
+        <div><small>결과</small><strong>pages.dev</strong><span>브라우저 공유</span></div>
       </div>
       <pre class="deploy-command"><code>npx wrangler pages deploy &lt;폴더&gt;</code></pre>`;
+  }
+
+  if (slide.id === "slide-42") {
+    return `
+      <div class="git-history-layout">
+        <ul class="ticks">
+          <li>무엇이 바뀌었는지 본다</li>
+          <li>중요한 순간을 저장한다</li>
+          <li>이전 상태로 돌아간다</li>
+          <li>실험을 두려워하지 않는다</li>
+        </ul>
+        ${localImageFigure({
+          className: "git-history-figure",
+          assetSource: "https://cdn.hashnode.com/res/hashnode/image/upload/v1612566431394/s3UUME2Hq.png",
+          src: "assets/diagrams/git-history-branches.png",
+          alt: "여러 브랜치와 커밋, 릴리스 태그가 갈라지고 합쳐지는 Git 이력 그래프",
+          caption: "커밋과 브랜치가 남기는 변경의 지도",
+          note: "사용자 제공 URL · rights unverified · internal only",
+          fallbackTitle: "commit → branch → merge → tag",
+          fallbackBody: "변경을 저장하고, 실험을 분리하고,<br>검토한 결과를 다시 합칩니다.",
+        })}
+      </div>`;
   }
 
   if (slide.id === "slide-43") {
@@ -440,6 +844,27 @@ function specialContent(slide) {
         <div><span>내 컴퓨터</span><strong>Git</strong><p>변경 이력 · 되돌리기 · 실험</p></div>
         <div><span>함께 쓰는 공간</span><strong>GitHub</strong><p>공유 · Issue · PR · Review · 배포</p></div>
       </div>`;
+  }
+
+  if (slide.id === "slide-44") {
+    return `
+      <div class="own-repo-layout">
+        <div class="repo-memory">
+          <strong>내 저장소가 남기는 것</strong>
+          <span><b>Files</b> 문서 · 데이터 · 교육자료</span>
+          <span><b>README</b> 목적과 사용법</span>
+          <span><b>Commits</b> 변경 이력과 중요한 버전</span>
+          <span><b>Issues</b> 할 일 · 오류 · 아이디어</span>
+        </div>
+        <div class="repo-prompts">
+          <strong>AI에게 맡길 수 있는 일</strong>
+          <p>“README를 최신 상태로 고쳐줘.”</p>
+          <p>“열린 Issue를 우선순위별로 정리해줘.”</p>
+          <p>“변경점을 검토하고 커밋해줘.”</p>
+          <p>“교육자료를 웹페이지로 배포해줘.”</p>
+        </div>
+      </div>
+      <p class="big-conclusion">개발 코드가 없어도 <strong>업무의 기억과 공유점</strong>이 됩니다.</p>`;
   }
 
   if (slide.id === "slide-46") {
@@ -453,7 +878,7 @@ function specialContent(slide) {
           <span>목표</span><b>→</b><span>실행</span><b>→</b><span>검증</span><b>→</b><span>수정</span><b>↺</b>
         </div>
       </div>
-      <p class="big-conclusion">승부는 오래 돌리는 시간이 아니라 <strong>검증 가능한 루프</strong>에서 납니다.</p>`;
+      <p class="big-conclusion">최근의 승부처는 일할 때의 생산성보다 <strong>자는 동안에도 일이 진행되는가</strong>입니다.</p>`;
   }
 
   if (["slide-50", "slide-51", "slide-52"].includes(slide.id)) {
@@ -486,34 +911,28 @@ function specialContent(slide) {
   if (slide.id === "slide-54") {
     return `
       <div class="threads-grid">
-        <div><strong>찾을 주제</strong><ul><li>Claude Code</li><li>MCP</li><li>Agent Skills · Plugins</li><li>AI 에이전트 사용 기록</li></ul></div>
-        <div><strong>추천 계정</strong><ul class="account-list">
-          <li><a href="https://www.threads.net/@choi.openai" target="_blank" rel="noreferrer">@choi.openai</a></li>
-          <li><a href="https://www.threads.net/@chris_gomdori" target="_blank" rel="noreferrer">@chris_gomdori</a></li>
-          <li><a href="https://www.threads.net/@amnotyoung.k" target="_blank" rel="noreferrer">@amnotyoung.k</a></li>
+        <div class="threads-platform">
+          <small>META · TEXT-FIRST SOCIAL PLATFORM</small>
+          <strong>Threads</strong>
+          <p>텍스트 업데이트와 공개 대화를 중심으로<br>사용 사례·신기능·현장 반응이 빠르게 흐릅니다.</p>
+          <a href="https://www.threads.net/" target="_blank" rel="noreferrer">threads.net ↗</a>
+        </div>
+        <div class="threads-accounts"><strong>추천 계정</strong><ul class="account-list">
+          <li><a href="https://www.threads.net/@choi.openai" target="_blank" rel="noreferrer">@choi.openai</a><span>AI 트렌드와 함의</span></li>
+          <li><a href="https://www.threads.net/@chris_gomdori" target="_blank" rel="noreferrer">@chris_gomdori</a><span>개발·에이전트 유즈케이스</span></li>
+          <li><a href="https://www.threads.net/@amnotyoung.k" target="_blank" rel="noreferrer">@amnotyoung.k</a><span>강사 계정 · 개인 프로젝트와 실험</span></li>
         </ul></div>
       </div>
-      <p class="big-conclusion">원문 링크와 실패 기록이 있는 실제 사용기를 우선 읽습니다.</p>`;
-  }
-
-  if (slide.id === "slide-48") {
-    return `
-      <div class="ops-check">
-        <div class="done"><span>✓</span><strong>구축 완료</strong></div>
-        <div><span>—</span><strong>운영 담당</strong></div>
-        <div><span>—</span><strong>업데이트</strong></div>
-        <div><span>—</span><strong>문서</strong></div>
-      </div>
-      <p class="big-conclusion danger">결국 아무도 쓰지 않습니다.</p>`;
+      <p class="big-conclusion">뉴스가 되기 전의 <strong>사용 장면과 해석</strong>을 따라갑니다.</p>`;
   }
 
   if (slide.id === "slide-56") {
     return `
       <div class="closing">
-        <p>불편함을 <strong>텍스트</strong>로 바꾸고</p>
+        <p>불편함에 대해 <strong>LLM과 대화를 시작하고</strong></p>
         <p>반복을 <strong>Skill</strong>로 묶고</p>
         <p>결과를 함께 쓰는 <strong>자산</strong>으로 축적합니다</p>
-        <div class="closing-mark">오늘 하나의 폴더에서 시작하세요.</div>
+        <div class="closing-mark">오늘 하나의 <strong>프로젝트</strong>를 시작하세요.</div>
       </div>`;
   }
 
@@ -533,7 +952,12 @@ function slideHtml(slide, index) {
   const isDark = ["cover", "part-divider"].includes(layout);
   const titleLong = slide.title.length > 29 ? " long-title" : "";
   const part = slide.kind === "appendix" ? "Appendix" : slide.part || "AI·데이터 활용";
-  const kicker = slide.kind === "appendix" ? `부록 ${String(slide.number).padStart(2, "0")}` : part.split(".")[0];
+  const kicker =
+    slide.kind === "appendix"
+      ? `부록 ${String(slide.number).padStart(2, "0")}`
+      : /^6부\./.test(part)
+        ? "6부 · 선택"
+        : part.split(".")[0];
   const title =
     slide.id === "slide-01" || slide.kind === "divider"
       ? ""
@@ -625,6 +1049,8 @@ const html = `<!DOCTYPE html>
   .quote .slide-body{max-width:1080px;gap:30px}
   .quote .slide-body>p{margin-top:0}
   .code .slide-body{gap:18px}
+  .start-tools .slide-body>p:last-child{margin-top:34px}
+  .file-result .slide-body{gap:38px}
   .cover{padding:0;background:radial-gradient(circle at 72% 22%,#1f4c82 0,#10294b 34%,#071426 72%)}
   .cover::before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:46px 46px;mask-image:linear-gradient(to right,transparent,#000 35%,#000)}
   .cover-copy{position:relative;height:100%;padding:92px 86px;display:flex;flex-direction:column;justify-content:center}
@@ -636,6 +1062,36 @@ const html = `<!DOCTYPE html>
   .signal-line::before{content:"";height:2px;background:#34557c;flex:1}
   .signal-line i{width:14px;height:14px;border-radius:50%;background:#52c7ff;box-shadow:0 0 0 5px #52c7ff1c}
   .signal-line i:nth-last-child(-n+2){background:var(--amber);box-shadow:0 0 0 5px #f59e0b20}
+  .agenda-slide{background:linear-gradient(145deg,#fff 0,#f4f8ff 72%,#eefaff 100%)}
+  .agenda-slide .slide-body{margin-top:18px}
+  .agenda-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .agenda-card{position:relative;min-height:112px;padding:18px 20px;border:1px solid var(--line);border-radius:15px;background:#fff;box-shadow:0 9px 24px #0b1f3711;display:grid;grid-template-columns:46px 1fr;grid-template-rows:auto 1fr;column-gap:13px;align-items:center}
+  .agenda-card>span{grid-row:1/3;width:43px;height:43px;border-radius:13px;display:grid;place-items:center;background:#e9f1ff;color:var(--blue);font-size:15px;font-weight:900}
+  .agenda-card>strong{display:flex;align-items:center;gap:8px;font-size:20px;color:var(--ink)!important}
+  .agenda-card>strong small{padding:3px 7px;border-radius:999px;background:#fff1c9;color:#965b04;font-size:10px;letter-spacing:.05em}
+  .agenda-card>p{margin:4px 0 0;font-size:14px;line-height:1.35;color:var(--muted);font-weight:650}
+  .agenda-card.optional{background:#fff9ea;border-color:#edc875}
+  .agenda-card.optional>span{background:#f59e0b;color:#fff}
+  .environment-setup .slide-body{margin-top:18px}
+  .environment-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .environment-card{min-height:145px;padding:22px 24px;border:1px solid var(--line);border-radius:16px;background:#f5f8fc;display:flex;flex-direction:column;justify-content:center;gap:9px}
+  .environment-card.windows{background:linear-gradient(145deg,#eef5ff,#e7fbff);border-color:#a9dce9}
+  .environment-card.common{grid-column:1/-1;min-height:105px;display:grid;grid-template-columns:150px 1.2fr 1fr;align-items:center}
+  .environment-card small{font-size:13px;letter-spacing:.1em;color:var(--blue);font-weight:900}
+  .environment-card strong{font-size:21px;color:var(--ink)!important}
+  .environment-card span{font-size:15px;color:var(--muted);font-weight:700}
+  .environment-card code{width:max-content;padding:8px 11px;border-radius:8px;background:#10223d;color:#8edcff;font:700 14px var(--mono)}
+  .environment-note{margin-top:15px!important;padding:13px 17px;border-left:5px solid var(--amber);background:#fff8e9;color:#704712!important;font-size:16px!important;font-weight:700!important}
+  .environment-note b{margin-right:8px;color:#9a5a03}
+  .remix-flow{display:grid;grid-template-columns:1.08fr 42px .82fr 42px 1.02fr;gap:12px;align-items:center}
+  .remix-flow>b{display:grid;place-items:center;color:var(--cyan);font-size:30px}
+  .remix-sources{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .remix-sources span{padding:15px 13px;border-radius:12px;background:#f2f6fb;border:1px solid var(--line);font:750 13px/1.3 var(--mono);color:#36506f;text-align:center}
+  .remix-agent{height:210px;border-radius:20px;background:#10223d;border:2px solid #2b527f;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;box-shadow:0 18px 40px #0b1f3727}
+  .remix-agent small{color:#7edcff;letter-spacing:.14em;font-size:11px;font-weight:900}
+  .remix-agent strong{font-size:21px;color:#fff!important}
+  .remix-output{height:210px;border-radius:20px;padding:23px;background:linear-gradient(145deg,#eaf2ff,#e7fbff);border:2px solid #a6dce8;display:flex;flex-direction:column;justify-content:center;gap:9px}
+  .remix-output small{font-size:12px;color:var(--blue);font-weight:900}.remix-output strong{font-size:24px;line-height:1.22;color:var(--ink)!important}.remix-output span{font-size:14px;color:var(--muted)}
   .part-divider{padding:0;background:radial-gradient(circle at 78% 24%,#234f86 0,#102846 36%,#071426 75%);overflow:hidden}
   .part-divider::before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff09 1px,transparent 1px),linear-gradient(90deg,#ffffff09 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(90deg,#000,transparent 80%)}
   .part-divider .slide-body{margin:0;position:absolute;inset:0;padding:112px 106px;justify-content:center}
@@ -660,6 +1116,23 @@ const html = `<!DOCTYPE html>
   .connector-targets span{background:#edf6ff;border:1px solid #cce2fa;border-radius:10px;padding:11px;text-align:center;font-size:18px;font-weight:750;color:#245080}
   .tool-link .slide-body>p:last-child{font-size:18px;margin-top:26px}
   .tool-link .slide-body>p:last-child a{display:inline-block;padding:10px 14px;border:1px solid #bcd7f8;border-radius:10px;background:#edf5ff;font-weight:800;text-decoration:none}
+  .demo-video-layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:34px;align-items:center}
+  .demo-video-copy{display:flex;flex-direction:column;align-items:flex-start;gap:11px;min-width:0}
+  .demo-video-copy .tool-name{font-size:31px;color:var(--blue)!important;margin-bottom:8px}
+  .demo-video-copy p{font-size:21px;line-height:1.35;margin:0;color:#263a54;font-weight:650}
+  .demo-video-copy .accent-copy{color:var(--blue);font-size:24px;font-weight:900}
+  .demo-video-copy a{display:inline-block;margin-top:12px;padding:9px 12px;border:1px solid #bcd7f8;border-radius:9px;background:#edf5ff;font-size:14px;font-weight:850;text-decoration:none}
+  .compact-flow{display:flex;flex-direction:column;gap:7px;color:#263a54;font-size:19px;font-weight:700;line-height:1.3}
+  .compact-flow b{color:var(--cyan)}
+  .demo-video-frame{margin:0;padding:10px 10px 12px;background:#0b1627;border:1px solid #213956;border-radius:16px;box-shadow:0 18px 42px #0b1f3728;overflow:hidden}
+  .demo-video-frame video{display:block;width:100%;height:330px;object-fit:contain;border-radius:10px;background:#050b14}
+  .demo-video-frame figcaption{margin:9px 4px 0;color:#bcd0e7;font-size:13px;line-height:1.35;text-align:center;font-weight:700}
+  .local-asset-primary{width:100%}
+  .asset-fallback{display:none;height:330px;border-radius:10px;background:linear-gradient(145deg,#12233b,#0a1525);color:#d9e8f8;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:32px}
+  .asset-fallback>span{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:#2563eb;color:#fff;font-size:25px;font-weight:900}
+  .asset-fallback>strong{font-size:23px;color:#fff!important}.asset-fallback>small{font-size:14px;line-height:1.45;color:#a9bfd8}
+  .local-asset-shell.asset-missing>.local-asset-primary{display:none}
+  .local-asset-shell.asset-missing>.asset-fallback{display:flex}
   .big-conclusion{text-align:center!important;font-size:28px!important;color:#30445f!important}
   .big-conclusion.danger{color:var(--danger)!important;font-size:34px!important;font-weight:850!important}
   .pipeline{display:flex;align-items:stretch;gap:12px}
@@ -667,6 +1140,19 @@ const html = `<!DOCTYPE html>
   .pipeline>div.accent{background:linear-gradient(160deg,#eaf2ff,#e5fbff);border-color:#91d9ec}
   .pipeline>b{display:grid;place-items:center;color:var(--cyan);font-size:30px}
   .pipeline small{color:var(--blue);font-weight:850}.pipeline strong{font-size:22px;color:var(--ink)!important}.pipeline span{font-size:16px;color:var(--muted)}
+  .workflow-fusion{display:grid;grid-template-columns:1.1fr 28px 1.06fr 28px 1.12fr 28px .78fr;gap:9px;align-items:stretch}
+  .workflow-fusion>div{border:1px solid var(--line);border-radius:15px;padding:18px 16px;background:#f7faff;display:flex;flex-direction:column;justify-content:center;gap:6px;min-width:0}
+  .workflow-fusion>b{display:grid;place-items:center;color:var(--cyan);font-size:25px}
+  .workflow-inputs{gap:9px!important;background:#f2f7fd!important}
+  .workflow-inputs>div{display:grid;grid-template-columns:1fr auto;column-gap:8px;row-gap:3px;padding:9px 11px;background:#fff;border:1px solid #dce8f4;border-radius:10px}
+  .workflow-inputs>div small{grid-column:1/-1}
+  .workflow-inputs>div span{text-align:right}
+  .workflow-merge{background:linear-gradient(145deg,#eef5ff,#e8fbff)!important;border-color:#aadce9!important}
+  .workflow-check{background:#fff8e8!important;border-color:#f3cd81!important}
+  .workflow-output{background:#eaf8f2!important;border-color:#a9ddc8!important}
+  .workflow-fusion small{font-size:12px;letter-spacing:.03em;color:var(--blue);font-weight:900}
+  .workflow-fusion strong{font-size:18px;color:var(--ink)!important;line-height:1.25}
+  .workflow-fusion span{font-size:13px;color:var(--muted);line-height:1.3}
   .parse-flow{display:grid;grid-template-columns:1.2fr .6fr 1.2fr;align-items:center;gap:35px}
   .file-cloud{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   .file-cloud span{background:#f1f5fa;border:1px solid var(--line);padding:20px;border-radius:13px;font:800 20px var(--mono);text-align:center}
@@ -674,17 +1160,64 @@ const html = `<!DOCTYPE html>
   .parse-box{background:var(--blue);color:#fff}.text-output{background:#e7fbff;color:#0f6474;border:1px solid #a3e7f2}
   .parse-box small,.text-output small{display:block;font-size:14px;margin-top:8px;font-weight:650;opacity:.8}
   .warning-line{text-align:center!important;margin-top:28px!important;color:#9a3412!important;font-size:23px!important}
-  .meme-sidecar-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+  .source-figure{margin:0;padding:10px 10px 11px;border:1px solid var(--line);border-radius:16px;background:#fff;box-shadow:0 16px 38px #0b1f3720;overflow:hidden}
+  .source-figure img{display:block;width:100%;object-fit:contain;border-radius:10px;background:#f7f9fc}
+  .source-figure figcaption{margin:9px 4px 0;font-size:14px;line-height:1.35;color:#30445f;text-align:center;font-weight:750}
+  .source-figure>small{display:block;margin:4px 4px 0;color:var(--faint);font-size:9px;text-align:center}
+  .source-figure .asset-fallback{background:linear-gradient(145deg,#eff5ff,#e8fbff);border:1px solid #c8ddf4;color:#213d61}
+  .source-figure .asset-fallback>span{background:#e4efff;color:#2563eb}
+  .source-figure .asset-fallback>strong{color:#163b6d!important}.source-figure .asset-fallback>small{color:#526983}
+  .parsing-explainer-layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:34px;align-items:center}
+  .parsing-explainer-copy{display:flex;flex-direction:column;gap:13px}
+  .parsing-explainer-copy p{margin:0;font-size:24px;line-height:1.35;color:#263a54}
+  .parsing-explainer-copy>div{margin-top:14px;padding:18px 20px;border-radius:14px;background:#eef5ff;border-left:6px solid var(--blue);font-size:20px;line-height:1.4;font-weight:850;color:#1d4e89}
+  .parsing-explainer-copy>div b{color:var(--danger);padding:0 5px}
+  .parsing-structure-figure img{height:330px}
+  .graphrag-comparison .slide-body{margin-top:16px}
+  .graphrag-figure{width:min(100%,900px);margin:0 auto;padding:9px 9px 8px}
+  .graphrag-figure img{height:370px}
+  .graphrag-figure figcaption{font-size:16px}.graphrag-figure figcaption strong{color:var(--blue)}
+  .docufinder-layout{display:grid;grid-template-columns:1.05fr .95fr;gap:42px;align-items:center}
+  .docufinder-copy{grid-column:1}
+  .docufinder-copy>strong{display:block;font-size:31px;color:var(--blue)!important;margin-bottom:20px}
+  .docufinder-copy>strong span{color:var(--muted);font-size:21px}
+  .docufinder-copy ul{margin:0;padding-left:25px;color:#2d425d;font-size:20px;line-height:1.65}
+  .docufinder-copy a{display:inline-block;margin-top:20px;font-size:17px;font-weight:850;text-decoration:none}
   .scatter-list{display:flex;flex-wrap:wrap;gap:10px}
   .scatter-list span{padding:12px 16px;border-radius:10px;background:#eef3f9;color:#44566d;font-size:18px;font-weight:700;transform:rotate(-1deg)}
   .scatter-list span:nth-child(even){transform:rotate(1.4deg);background:#edf9fb}
-  .meme-setup p{font-size:29px;line-height:1.4;color:var(--ink);margin:26px 0 0}
   .slide-meme{margin:0;position:relative}
-  .meme-sidecar-grid .slide-meme{background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px 12px 16px;box-shadow:0 18px 44px #0b1f3725}
-  .meme-sidecar-grid .slide-meme img{display:block;width:100%;border-radius:11px}
-  .meme-sidecar-grid figcaption{font-size:22px;line-height:1.35;margin:13px 5px 0;color:#263a54}
-  .meme-sidecar-grid figcaption strong{color:var(--blue)}
   .slide-meme>small{display:block;margin-top:7px;color:var(--faint);font-size:10px;font-weight:650}
+  .brain-dump-layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:38px;align-items:center}
+  .brain-dump-copy>strong{display:block;margin-bottom:20px;font-size:31px;color:var(--blue)!important}
+  .brain-dump-copy p{margin:12px 0;font-size:21px;line-height:1.42;color:#30445f}
+  .brain-dump-flow{display:grid;grid-template-columns:1fr 42px .78fr;gap:12px;align-items:center}
+  .brain-dump-flow>b{display:grid;place-items:center;color:var(--cyan);font-size:30px}
+  .raw-inbox{position:relative;height:250px;border:3px solid #9ab8dd;border-top:none;border-radius:0 0 22px 22px;background:linear-gradient(180deg,#eff5ff,#dfeafe);display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:23px;box-shadow:0 16px 34px #0b1f3718}
+  .raw-inbox::before{content:"";position:absolute;left:-3px;right:-3px;top:0;height:24px;background:#bcd0ec;clip-path:polygon(0 100%,8% 0,92% 0,100% 100%)}
+  .raw-inbox>strong{font-size:25px;color:#1d4e89!important}.raw-inbox>small{font-size:14px;color:var(--muted);margin-top:5px}
+  .loose-note{position:absolute;padding:10px 12px;border-radius:9px;background:#fff;border:1px solid #cad8e8;font-size:13px;font-weight:800;color:#40536c;box-shadow:0 7px 15px #0b1f3717}
+  .note-a{left:24px;top:34px;transform:rotate(-7deg)}.note-b{right:30px;top:42px;transform:rotate(6deg)}
+  .note-c{left:55px;top:95px;transform:rotate(4deg);background:#fff8e8}.note-d{right:43px;top:103px;transform:rotate(-5deg);background:#e8fbff}
+  .llm-organizer{height:214px;border-radius:22px;background:#10223d;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;border:2px solid #2d5482;box-shadow:0 18px 42px #0b1f3728}
+  .llm-organizer small{font-size:13px;letter-spacing:.14em;color:#7edcff;font-weight:900}.llm-organizer strong{margin:10px 0;font-size:27px;line-height:1.15;color:#fff!important}.llm-organizer span{font-size:14px;color:#b8cbe2}
+  .wiki-practice .slide-body{gap:24px}
+  .wiki-practice-steps{display:grid;grid-template-columns:1fr 50px 1.15fr 50px 1fr;gap:12px;align-items:stretch}
+  .wiki-practice-steps>div{padding:20px 22px;border-radius:15px;background:#f4f8fc;border:1px solid var(--line);display:flex;flex-direction:column;gap:7px}
+  .wiki-practice-steps>div.accent{background:linear-gradient(145deg,#eaf2ff,#e6fbff);border-color:#a8dce9}
+  .wiki-practice-steps>b{display:grid;place-items:center;color:var(--cyan);font-size:28px}
+  .wiki-practice-steps small{color:var(--blue);font-weight:900}.wiki-practice-steps strong{font-size:21px;color:var(--ink)!important}.wiki-practice-steps span{font-size:15px;color:var(--muted)}
+  .wiki-practice blockquote{font-size:26px;padding:20px 25px}
+  .practice-note{text-align:center!important;font-size:22px!important}
+  .wiki-flow .slide-body>p:last-child{margin-top:32px}
+  .wiki-video-layout{display:grid;grid-template-columns:.82fr 1.18fr;gap:34px;align-items:center}
+  .wiki-flow-copy>strong{display:block;margin-bottom:16px;font-size:24px;color:var(--blue)!important}
+  .wiki-flow-copy ol{list-style:none;counter-reset:wiki;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+  .wiki-flow-copy li{counter-increment:wiki;display:grid;grid-template-columns:34px 68px 1fr;align-items:center;gap:9px;font-size:15px;color:#30445f}
+  .wiki-flow-copy li::before{content:counter(wiki);width:32px;height:32px;border-radius:9px;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:900}
+  .wiki-flow-copy li b{color:#1d4e89}.wiki-flow-copy li span{line-height:1.35}
+  .wiki-flow-copy>p{margin:18px 0 0;font-size:18px;line-height:1.35;color:var(--blue);font-weight:850}
+  .wiki-graph-video video{height:316px}
   .relation-visual{display:grid;grid-template-columns:1fr 1.3fr 1fr;align-items:center;gap:20px}
   .relation-node{border:2px solid #bed7f7;background:#eef5ff;color:#1e4a7c;border-radius:16px;padding:28px;text-align:center;font-size:24px;font-weight:850}
   .relation-link{position:relative;text-align:center;color:#0e7490}
@@ -698,21 +1231,70 @@ const html = `<!DOCTYPE html>
   .long-prompt{border:1px solid var(--line);background:#f4f7fb;border-radius:14px;padding:23px;font-family:var(--mono);font-size:16px;line-height:1.5;color:#5c6b7e}
   .prompt-shrink>b{text-align:center;color:var(--cyan);font-size:30px}
   .short-command{border-radius:15px;padding:28px;background:var(--navy2);color:#7edcff;font:850 30px var(--mono);text-align:center;box-shadow:0 18px 42px #0a19302a}
-  .meme-handshake{background:linear-gradient(145deg,#f8fbff,#edf6ff)}
-  .meme-handshake .slide-body{margin-top:4px}
+  .skill-lifecycle-flow{display:grid;grid-template-columns:1fr 32px 1.25fr 32px 1fr 32px 1fr 32px .85fr;gap:8px;align-items:stretch}
+  .skill-lifecycle-flow>div{padding:18px 16px;border:1px solid var(--line);border-radius:14px;background:#f5f8fc;display:flex;flex-direction:column;gap:6px;justify-content:center}
+  .skill-lifecycle-flow>div.accent{background:linear-gradient(145deg,#eaf2ff,#e7fbff);border-color:#9fdce9}
+  .skill-lifecycle-flow>div.git-step{background:#0f2038;color:#fff}
+  .skill-lifecycle-flow>b{display:grid;place-items:center;color:var(--cyan);font-size:23px}
+  .skill-lifecycle-flow small{font-size:12px;color:var(--blue);font-weight:900}.skill-lifecycle-flow strong{font-size:18px;color:var(--ink)!important}.skill-lifecycle-flow span{font-size:13px;color:var(--muted)}
+  .skill-lifecycle-flow .git-step small{color:#7edcff}.skill-lifecycle-flow .git-step strong{color:#fff!important}.skill-lifecycle-flow .git-step span{color:#b8cbe2}
+  .skill-training .slide-body>p:last-child{margin-top:30px}
+  .one-line-statement .slide-body>p{white-space:nowrap;font-size:29px}
+  .plugin-parts-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .plugin-parts-grid>div{display:grid;grid-template-columns:150px 180px 1fr;align-items:center;gap:14px;padding:20px 22px;border-radius:14px;background:#f4f8fc;border:1px solid var(--line)}
+  .plugin-parts-grid>div.optional{background:#f8fafc;border-style:dashed}
+  .plugin-parts-grid code{font-size:17px;font-weight:850}.plugin-parts-grid strong{font-size:19px;color:var(--ink)!important}.plugin-parts-grid span{font-size:16px;color:var(--muted)}
+  .skill-plugin-layout{display:grid;grid-template-columns:.7fr 1.3fr;gap:30px;align-items:center}
+  .skill-plugin-copy{display:flex;flex-direction:column;gap:16px}
+  .skill-plugin-copy>div{padding:20px 22px;border-radius:15px;background:#f3f7fc;border:1px solid var(--line);display:flex;flex-direction:column;gap:5px}
+  .skill-plugin-copy>div:last-child{background:linear-gradient(145deg,#eef5ff,#e8fbff);border-color:#acdce9}
+  .skill-plugin-copy small{font-size:12px;letter-spacing:.1em;color:var(--muted);font-weight:900}
+  .skill-plugin-copy strong{font-size:28px;color:var(--blue)!important}
+  .skill-plugin-copy span{font-size:16px;line-height:1.35;color:#334963}
   .handshake-meme{text-align:center}
-  .handshake-frame{position:relative;width:620px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 22px 54px #09182d36;border:1px solid #b9c9da;background:#fff}
+  .handshake-frame{position:relative;width:100%;max-width:610px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 22px 54px #09182d36;border:1px solid #b9c9da;background:#fff}
   .handshake-frame img{display:block;width:100%}
-  .hand-label{position:absolute;z-index:2;color:#fff;font-size:23px;font-weight:900;line-height:1.05;background:#071426dc;border-radius:10px;padding:9px 12px;box-shadow:0 6px 18px #0003}
-  .hand-label small{font-size:12px;color:#dce8f5}.hand-label.left{left:22px;bottom:34px}.hand-label.right{right:22px;bottom:34px}.hand-label.center{left:50%;top:18px;transform:translateX(-50%);width:max-content;color:#fff3c4;font-size:20px}
-  .handshake-meme figcaption{font-size:22px;font-weight:850;color:var(--ink);margin-top:8px}.handshake-meme>small{margin-top:3px}
-  .model-role-grid{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center;gap:18px}
-  .model-role-grid>b{font-size:38px;color:var(--cyan);text-align:center}
-  .model-role{padding:25px 30px;border-radius:18px;background:#f3f7fc;border:1px solid var(--line)}
+  .hand-label{position:absolute;z-index:2;color:#fff;font-size:19px;font-weight:900;line-height:1.05;background:#071426dc;border-radius:10px;padding:9px 12px;box-shadow:0 6px 18px #0003}
+  .hand-label small{font-size:12px;color:#dce8f5}.hand-label.left{left:22px;bottom:34px}.hand-label.right{right:22px;bottom:34px}.hand-label.center{left:50%;top:18px;transform:translateX(-50%);width:max-content;color:#fff3c4;font-size:17px}
+  .handshake-meme>figcaption{font-size:18px;font-weight:850;color:var(--ink);margin-top:8px}
+  .handshake-meme .meme-attribution{margin-top:4px}
+  .skill-plugin-fallback{height:315px;background:linear-gradient(145deg,#eff5ff,#e8fbff);border:1px solid #bdd8ef;color:var(--ink);display:none;grid-template-columns:1fr 32px 1fr 32px 1.1fr;align-items:center;gap:8px}
+  .skill-plugin-fallback>div{padding:22px 12px;border-radius:13px;background:#fff;border:1px solid #caddef}.skill-plugin-fallback>b{color:var(--cyan);font-size:24px}.skill-plugin-fallback>small{grid-column:1/-1;color:#5f7187;font-size:12px}
+  .skill-plugin-fallback strong{display:block;font-size:20px;color:var(--ink)!important}.skill-plugin-fallback div small{display:block;margin-bottom:7px;color:var(--blue);font-size:10px;font-weight:900}
+  .local-asset-shell.asset-missing>.skill-plugin-fallback{display:grid}
+  .harness-antipattern{background:linear-gradient(145deg,#f8fbff,#eef6ff)}
+  .bike-fall-meme{width:930px;margin:0 auto;text-align:center}
+  .bike-fall-grid{display:grid;grid-template-columns:285px 1fr;gap:24px;align-items:center}
+  .bike-fall-grid img{display:block;width:285px;height:345px;object-fit:contain;border-radius:15px;border:1px solid #bdcce0;background:#fff;box-shadow:0 18px 42px #0b1f3724}
+  .bike-fall-copy{height:345px;display:grid;grid-template-rows:repeat(3,1fr);gap:10px}
+  .bike-fall-copy>div{display:flex;flex-direction:column;justify-content:center;gap:8px;padding:17px 23px;border-radius:15px;background:#f4f8fc;border:1px solid var(--line);text-align:left}
+  .bike-fall-copy>div.sabotage{background:#fff8e8;border-color:#f6c768}.bike-fall-copy>div.blame{background:#fff0f0;border-color:#f3aaaa}
+  .bike-fall-copy small{font-size:13px;letter-spacing:.08em;color:var(--blue);font-weight:900}.bike-fall-copy .sabotage small{color:#a16207}.bike-fall-copy .blame small{color:#b42318}
+  .bike-fall-copy strong{font-size:22px;color:var(--ink)!important}
+  .meme-attribution{display:block;margin:5px 0 0;color:#708298;font-size:10px;text-align:center}
+  .failure-chain{display:grid;grid-template-columns:1fr 38px 1.15fr 38px 1fr;gap:12px;align-items:stretch}
+  .failure-chain>b{display:grid;place-items:center;color:var(--cyan);font-size:29px}
+  .failure-chain>div{min-height:150px;padding:23px 24px;border-radius:16px;background:#f4f8fc;border:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;gap:8px}
+  .failure-chain>div.warning{background:#fff8e8;border-color:#f6c768}.failure-chain>div.failure{background:#fff0f0;border-color:#f3aaaa}
+  .failure-chain small{font-size:12px;letter-spacing:.08em;color:var(--blue);font-weight:900}.failure-chain .warning small{color:#a16207}.failure-chain .failure small{color:#b42318}
+  .failure-chain strong{font-size:22px;color:var(--ink)!important}
+  .meme-asset-fallback{height:345px;background:linear-gradient(145deg,#eff5ff,#e8fbff);border:1px solid #bdd8ef;color:var(--ink);padding:22px}
+  .meme-asset-fallback .failure-chain{width:100%}.meme-asset-fallback>small{color:#5f7187;font-size:12px}
+  .harness-formula{margin:0 auto;padding:12px 15px;border-radius:12px;background:#10223d;color:#fff;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:850}
+  .harness-formula span{padding:4px 8px;border-radius:7px;background:#203a5d}.harness-formula b{color:#65d7ff}.harness-formula strong{margin-left:8px;padding:5px 10px;border-radius:999px;background:#f59e0b;color:#fff!important}
+  .bike-fall-meme>.harness-formula{margin-top:10px}
+  .bike-fall-meme>figcaption{margin-top:7px;font-size:20px;font-weight:780;color:#30445f}.bike-fall-meme>figcaption strong{color:var(--danger)}
+  .model-platform-grid{display:grid;grid-template-columns:1.05fr 1fr 48px 1fr;gap:14px;align-items:stretch}
+  .model-platform-grid>b{display:grid;place-items:center;font-size:28px;color:var(--cyan)}
+  .platform-name{padding:19px 21px;border-radius:16px;background:#10223d;color:#fff;display:flex;flex-direction:column;justify-content:center}
+  .platform-name.chatgpt{background:#12493f}
+  .platform-name span{font-size:11px;letter-spacing:.13em;color:#8cc9ff;font-weight:900}
+  .platform-name.chatgpt span{color:#9eebcf}
+  .platform-name strong{margin-top:6px;font-size:24px;color:#fff!important}
+  .model-role{padding:19px 22px;border-radius:16px;background:#f3f7fc;border:1px solid var(--line)}
   .model-role.plan{border-left:7px solid var(--blue)}.model-role.execute{border-left:7px solid var(--amber)}
   .model-role>span{display:block;font-size:13px;letter-spacing:.14em;font-weight:900;color:var(--muted)}
-  .model-role>strong{display:block;margin:7px 0 13px;font-size:37px;color:var(--ink)!important}
-  .model-role ul{margin:0;padding-left:21px;color:#344962;font-size:18px;line-height:1.55}
+  .model-role>strong{display:block;margin:7px 0 0;font-size:33px;color:var(--ink)!important}
   .layer-stack{display:flex;flex-direction:column;gap:12px;width:850px;margin:0 auto}
   .layer-stack>div{display:grid;grid-template-columns:240px 1fr;align-items:center;border-radius:14px;padding:20px 26px;background:#f2f6fb;border-left:8px solid var(--blue)}
   .layer-stack>div:nth-child(2){margin-left:70px;border-left-color:var(--cyan)}.layer-stack>div:nth-child(3){margin-left:140px;border-left-color:var(--amber)}
@@ -722,12 +1304,30 @@ const html = `<!DOCTYPE html>
   .architecture>div small{display:block;font-size:14px;line-height:1.4;margin-top:8px;font-weight:650}
   .browser-box{background:#eef5ff;color:#1d4e89;border:1px solid #bfd8f7}.web-box{background:var(--blue);color:#fff}.db-box{background:#e9fbf4;color:#116149;border:1px solid #a7e3cf}
   .architecture>b{font-size:27px;color:var(--cyan)}
+  .supabase-demo-layout{display:grid;grid-template-columns:.85fr 1.15fr;gap:30px;align-items:center}
+  .supabase-prompts{padding:24px 26px;border-radius:17px;background:#f4f8fc;border:1px solid var(--line)}
+  .supabase-prompts>strong{display:block;margin-bottom:16px;font-size:23px;color:var(--ink)!important}
+  .supabase-prompts p{margin:9px 0;padding:10px 12px;border-left:4px solid var(--amber);background:#fff9ed;border-radius:0 9px 9px 0;color:#5f3b18;font:650 15px/1.35 var(--mono)}
+  .supabase-video video{height:292px}
+  .demo-placeholder{height:324px;border:3px dashed #9cc7e8;border-radius:18px;background:linear-gradient(145deg,#eef5ff,#e8fbff);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#215586}
+  .demo-placeholder>span{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;padding-left:5px;background:var(--blue);color:#fff;font-size:27px;box-shadow:0 12px 28px #2563eb38}
+  .demo-placeholder>strong{font-size:23px;color:#1d4e89!important}.demo-placeholder>small{font-size:14px;color:var(--muted)}
   .deployment{max-width:920px;margin:0 auto}.deployment>div{padding:28px}
   .deploy-command{width:720px;margin:24px auto 0;font-size:20px;padding:17px 24px;text-align:center}
+  .git-history-layout{display:grid;grid-template-columns:.68fr 1.32fr;gap:34px;align-items:center}
+  .git-history-layout .ticks{gap:13px}
+  .git-history-layout .ticks li{font-size:20px}
+  .git-history-figure img{height:330px}
   .split-def{display:grid;grid-template-columns:1fr 1fr;gap:26px}
   .split-def>div{padding:32px;border-radius:18px;background:#f2f6fb;border:1px solid var(--line)}
   .split-def>div:last-child{background:linear-gradient(145deg,#eaf2ff,#e6fbff);border-color:#b7dded}
   .split-def span{display:block;color:var(--muted);font-size:15px;font-weight:750}.split-def strong{display:block;font-size:42px;margin:12px 0;color:var(--ink)!important}.split-def p{font-size:19px;color:#3d5069}
+  .own-repo-layout{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .own-repo-layout>div{padding:25px 28px;border-radius:18px;border:1px solid var(--line)}
+  .repo-memory{background:#f4f8fc}.repo-prompts{background:linear-gradient(145deg,#eaf2ff,#e8fbff);border-color:#b3dfea!important}
+  .own-repo-layout>div>strong{display:block;font-size:23px;color:var(--ink)!important;margin-bottom:16px}
+  .repo-memory span{display:block;padding:8px 0;font-size:17px;color:#334962}.repo-memory b{display:inline-block;width:92px;color:var(--blue)}
+  .repo-prompts p{margin:8px 0;padding:9px 12px;background:#fff;border-radius:9px;font:650 15px/1.35 var(--mono);color:#29405c}
   .loop-layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:34px;align-items:center}
   .handoff-list{display:flex;flex-direction:column;gap:9px;padding:24px 27px;border-left:7px solid var(--amber);background:#fff8e9;border-radius:0 16px 16px 0}
   .handoff-list span{font-size:15px;color:#8a5a16;font-weight:800}.handoff-list strong{font-size:21px;color:#263a54!important}
@@ -738,22 +1338,22 @@ const html = `<!DOCTYPE html>
   .remote-setup ol.steps li{font-size:20px;line-height:1.32}
   .remote-setup ol.steps li::before{width:38px;height:38px}
   .remote-setup .slide-body>p:last-child{margin-top:10px;font-size:17px}
-  .ops-check{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
-  .ops-check>div{height:165px;border:2px dashed #cbd5e1;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;background:#f8fafc;color:#7b8797}
-  .ops-check>div.done{border-style:solid;border-color:#83d2bc;background:#e9fbf4;color:#137052}
-  .ops-check span{font-size:35px;font-weight:900}.ops-check strong{font-size:20px;color:inherit!important}
   .project-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
   .project-column{padding:29px 31px;border-radius:18px;background:#f4f8fc;border:1px solid var(--line);border-top:6px solid var(--blue)}
   .project-column:nth-child(2){border-top-color:var(--cyan)}
   .project-column>strong{font-size:27px;color:var(--ink)!important}
   .project-column ul{margin:18px 0 22px;padding-left:22px;color:#334963;font-size:18px;line-height:1.55}
   .project-column a{display:inline-block;padding:10px 14px;border-radius:9px;background:#e6efff;color:#1d4ed8;font-size:16px;font-weight:850;text-decoration:none}
-  .threads-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:34px}
-  .threads-grid>div{padding:27px 30px;border-radius:18px;background:#f4f8fc;border:1px solid var(--line)}
-  .threads-grid>div:last-child{background:#edf8fb;border-color:#b9e5ee}
-  .threads-grid strong{font-size:25px;color:var(--ink)!important}
-  .threads-grid ul{margin:18px 0 0;padding-left:22px;color:#344962;font-size:18px;line-height:1.65}
-  .account-list a{font-family:var(--mono);font-weight:850;text-decoration:none}
+  .threads-grid{display:grid;grid-template-columns:.86fr 1.14fr;gap:22px}
+  .threads-grid>div{padding:25px 28px;border-radius:18px;border:1px solid #b9e5ee}
+  .threads-platform{background:#10223d;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+  .threads-platform small{color:#77d8ff;font-size:11px;letter-spacing:.11em;font-weight:900}.threads-platform strong{margin:8px 0;font-size:35px;color:#fff!important}
+  .threads-platform p{margin:0;color:#bfd0e4;font-size:16px;line-height:1.45}.threads-platform a{margin-top:15px;padding:7px 10px;border-radius:8px;background:#203c60;color:#8edcff;font-size:14px;font-weight:850;text-decoration:none}
+  .threads-accounts{background:linear-gradient(145deg,#eef5ff,#e8fbff)}
+  .threads-accounts>strong{font-size:23px;color:var(--ink)!important}
+  .threads-grid ul{margin:14px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:9px}
+  .account-list li{display:grid;grid-template-columns:185px 1fr;gap:12px;align-items:center;padding:9px 11px;border-radius:10px;background:#fff;border:1px solid #dce8f4}
+  .account-list a{font-family:var(--mono);font-size:15px;font-weight:850;text-decoration:none}.account-list span{font-size:13px;color:var(--muted);font-weight:700}
   .closing{display:flex;flex-direction:column;gap:18px}
   .closing p{font-size:37px!important;color:#263a54!important;margin:0!important}
   .closing p strong{color:var(--blue)!important}
@@ -788,16 +1388,33 @@ const html = `<!DOCTYPE html>
   const stage=document.getElementById('stage');
   const notesPanel=document.getElementById('notesPanel');
   const overview=document.getElementById('overview');
-  let current=Math.max(0,Math.min(slides.length-1,Number(location.hash.replace('#',''))-1||0));
+  const markAssetMissing=(asset)=>asset.closest('.local-asset-shell')?.classList.add('asset-missing');
+  document.querySelectorAll('[data-local-asset]').forEach(asset=>{
+    asset.addEventListener('error',()=>markAssetMissing(asset));
+    if(asset.tagName==='IMG'&&asset.complete&&!asset.naturalWidth)markAssetMissing(asset);
+    if(asset.tagName==='VIDEO'){
+      asset.querySelectorAll('source').forEach(source=>source.addEventListener('error',()=>markAssetMissing(asset)));
+      setTimeout(()=>{if(asset.networkState===HTMLMediaElement.NETWORK_NO_SOURCE)markAssetMissing(asset)},0);
+    }
+  });
+  function indexFromHash(){
+    const raw=decodeURIComponent(location.hash.replace(/^#/,''));
+    if(!raw)return 0;
+    if(/^\d+$/.test(raw))return Math.max(0,Math.min(slides.length-1,Number(raw)-1));
+    const byId=slides.findIndex(slide=>slide.id===raw);
+    return byId>=0?byId:0;
+  }
+  let current=indexFromHash();
   function fit(){
     const scale=Math.min(innerWidth/1280,innerHeight/720);
     document.documentElement.style.setProperty('--scale',scale);
   }
   function show(index,{updateHash=true}={}){
-    current=Math.max(0,Math.min(slides.length-1,index));
+    current=Math.max(0,Math.min(slides.length-1,Number.isFinite(index)?index:0));
     slides.forEach((slide,i)=>{
       slide.classList.toggle('active',i===current);
       slide.style.setProperty('--progress',((i+1)/slides.length*100).toFixed(2));
+      if(i!==current) slide.querySelectorAll('video').forEach(video=>video.pause());
     });
     if(updateHash) history.replaceState(null,'','#'+(current+1));
     const note=slides[current].querySelector('aside.notes');
@@ -818,6 +1435,8 @@ const html = `<!DOCTYPE html>
     }
   }
   addEventListener('keydown',(event)=>{
+    const interactive=event.target instanceof Element&&event.target.closest('video,audio,button,a,input,textarea,select,[contenteditable="true"]');
+    if(interactive&&event.key!=='Escape')return;
     if(event.key==='ArrowRight'||event.key==='PageDown'||event.key===' '){event.preventDefault();show(current+1)}
     if(event.key==='ArrowLeft'||event.key==='PageUp'){event.preventDefault();show(current-1)}
     if(event.key.toLowerCase()==='n')toggleNotes();
@@ -828,7 +1447,7 @@ const html = `<!DOCTYPE html>
     if(event.key==='Escape'){notesPanel.classList.remove('show');overview.classList.remove('show')}
   });
   addEventListener('resize',fit);
-  addEventListener('hashchange',()=>show(Number(location.hash.replace('#',''))-1,{updateHash:false}));
+  addEventListener('hashchange',()=>show(indexFromHash(),{updateHash:false}));
   fit();show(current);
 </script>
 </body>

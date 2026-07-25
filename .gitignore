@@ -1,10 +1,27 @@
 .DS_Store
 **/.DS_Store
 
+# Local secrets
+.env
+.env.*
+!.env.example
+.local/
+
 # Local browser and visual-QA artifacts
 .playwright-cli/
 output/
 
-# Draft meme assets that are not used in the final deck
+# Internal source material and instructor-only media
+artifacts/
+assets/video/
+assets/diagrams/
+
+# Local-only meme assets: visible in the instructor deck, omitted from the public repo
+assets/memes/bike-fall.jpg
+assets/memes/skill-plugin-bulls.webp
+assets/memes/confused-travolta.jpg
+assets/memes/Z-SeduIo6bSvhtV7ZZGZPTvCtmbGscj1t_tR5e8EiGpHGAzq-2GVl9pAFD-qRzTx1TsXd09rhHrn6hRIjK1GTA.webp
+
+# Dropped meme assets
 assets/memes/drx-unbreakables.jpg
 assets/memes/epic-handshake.jpg
