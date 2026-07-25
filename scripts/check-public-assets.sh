@@ -6,7 +6,6 @@ cd "$repo_root"
 
 blocked_patterns=(
   '^artifacts/'
-  '^assets/video/'
   '^assets/diagrams/'
   '^assets/memes/bike-fall\.jpg$'
   '^assets/memes/skill-plugin-bulls\.webp$'
@@ -27,6 +26,18 @@ for pattern in "${blocked_patterns[@]}"; do
     failed=1
   fi
 done
+
+allowed_video_pattern='^assets/video/(docufinder|koica-reg|kordoc|korean-law|llm-wiki-graph|supabase|tiro)-(demo\.mp4|poster\.jpg)$'
+tracked_videos="$(printf '%s\n' "$tracked" | grep -E '^assets/video/' || true)"
+
+if [[ -n "$tracked_videos" ]]; then
+  unexpected_videos="$(printf '%s\n' "$tracked_videos" | grep -Ev "$allowed_video_pattern" || true)"
+  if [[ -n "$unexpected_videos" ]]; then
+    printf '공개 허용 목록에 없는 영상 자산이 Git에 추적되고 있습니다:\n' >&2
+    printf '%s\n' "$unexpected_videos" >&2
+    failed=1
+  fi
+fi
 
 if [[ "$failed" -ne 0 ]]; then
   printf '위 파일을 Git 추적에서 제외한 뒤 다시 검사하세요.\n' >&2

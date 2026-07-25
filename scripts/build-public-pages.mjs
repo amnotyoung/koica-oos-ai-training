@@ -11,6 +11,10 @@ const source = readFileSync(inputPath, "utf8");
 
 const shellPattern = /class="([^"]*\blocal-asset-shell\b[^"]*)"/g;
 const shellCount = [...source.matchAll(shellPattern)].length;
+const publicVideoShellCount = [...source.matchAll(shellPattern)].filter((match) =>
+  /\bdemo-video-frame\b/.test(match[1]),
+).length;
+const fallbackShellCount = shellCount - publicVideoShellCount;
 
 if (shellCount === 0) {
   throw new Error("공개 대체 화면으로 전환할 local-asset-shell을 찾지 못했습니다.");
@@ -18,6 +22,9 @@ if (shellCount === 0) {
 
 let html = source.replace(shellPattern, (_match, classes) => {
   const normalized = classes.trim();
+  if (/\bdemo-video-frame\b/.test(normalized)) {
+    return `class="${normalized}"`;
+  }
   return /\basset-missing\b/.test(normalized)
     ? `class="${normalized}"`
     : `class="${normalized} asset-missing"`;
@@ -26,28 +33,34 @@ let html = source.replace(shellPattern, (_match, classes) => {
 html = html.replace(/<img\b[^>]*\bdata-local-asset\b[^>]*>/g, (tag) =>
   tag.replace(/\s+src="[^"]*"/, ""),
 );
-html = html.replace(/<video\b[^>]*\bdata-local-asset\b[^>]*>/g, (tag) =>
-  tag.replace(/\s+poster="[^"]*"/, ""),
-);
-html = html.replace(/<source\b[^>]*\bsrc="assets\/[^"]+"[^>]*>/g, (tag) =>
-  tag.replace(/\s+src="[^"]*"/, ""),
-);
 html = html.replace("<html lang=\"ko\">", "<html lang=\"ko\" data-public-build=\"github-pages\">");
 
 const markedShellCount = [
   ...html.matchAll(/class="[^"]*\blocal-asset-shell\b[^"]*\basset-missing\b[^"]*"/g),
 ].length;
-const unresolvedMedia =
-  /<(?:img|source)\b[^>]*\bsrc="assets\/(?:video|diagrams|memes)\//.test(html) ||
-  /<video\b[^>]*\bposter="assets\/video\//.test(html);
+const unresolvedExcludedMedia =
+  /<img\b[^>]*\bsrc="assets\/(?:diagrams|memes)\//.test(html);
+const retainedVideoCount = [
+  ...html.matchAll(/<source\b[^>]*\bsrc="assets\/video\/[^"]+-demo\.mp4"/g),
+].length;
 
-if (markedShellCount !== shellCount) {
-  throw new Error(`대체 화면 표시 수가 맞지 않습니다: ${markedShellCount}/${shellCount}`);
+if (markedShellCount !== fallbackShellCount) {
+  throw new Error(
+    `대체 화면 표시 수가 맞지 않습니다: ${markedShellCount}/${fallbackShellCount}`,
+  );
 }
-if (unresolvedMedia) {
+if (unresolvedExcludedMedia) {
   throw new Error("공개 HTML에 내부 전용 미디어 요청 경로가 남아 있습니다.");
+}
+if (retainedVideoCount !== publicVideoShellCount) {
+  throw new Error(
+    `공개 영상 수가 맞지 않습니다: ${retainedVideoCount}/${publicVideoShellCount}`,
+  );
 }
 
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, html);
-console.log(`공개 발표자료 생성 완료: ${shellCount}개 내부 자산을 대체 화면으로 전환했습니다.`);
+console.log(
+  `공개 발표자료 생성 완료: 영상 ${publicVideoShellCount}개 유지, ` +
+    `내부 이미지 ${fallbackShellCount}개를 대체 화면으로 전환했습니다.`,
+);

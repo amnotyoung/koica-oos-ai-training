@@ -15,8 +15,12 @@ __pycache__/
 
 # Internal source material and instructor-only media
 artifacts/
-assets/video/
 assets/diagrams/
+
+# Publish only web-optimized demos and posters; keep raw recordings local
+assets/video/*
+!assets/video/*-demo.mp4
+!assets/video/*-poster.jpg
 
 # Local-only meme assets: visible in the instructor deck, omitted from the public repo
 /meme-plan.json

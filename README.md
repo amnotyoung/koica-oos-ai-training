@@ -2,7 +2,7 @@
 
 KOICA 해외사무소 근무자를 대상으로 한 AI·데이터 활용 교육 자료입니다. Claude Code를 기본 환경으로 삼되 ChatGPT의 Codex에서도 적용할 수 있는 파일 중심 업무, MCP, LLM Wiki, Skill·Plugin, 웹앱 구축, GitHub, 원격 확인과 개인 프로젝트 사례를 다룹니다.
 
-> 이 저장소의 문서와 코드는 공개하지만, 내부 업무 화면이 담긴 시연 영상과 권리가 확인되지 않은 밈·도식 원본은 공개 저장소에 포함하지 않습니다. 강의자 로컬 폴더에 자산이 있으면 실제 영상·이미지를 표시하고, 공개본에서는 같은 메시지의 대체 화면을 자동으로 표시합니다.
+> 웹용으로 최적화한 도구 시연 영상은 공개 슬라이드에서 바로 재생됩니다. 원본 MOV와 권리가 확인되지 않은 밈·도식 원본은 공개 저장소에 포함하지 않으며, 공개본에서는 같은 메시지의 대체 화면을 표시합니다.
 
 발표 슬라이드 공개본: <https://amnotyoung.github.io/koica-oos-ai-training/>
 
@@ -16,7 +16,7 @@ KOICA 해외사무소 근무자를 대상으로 한 AI·데이터 활용 교육 
 | `.slide-build/playwright-audit.js` | 브라우저 렌더링 검수 스크립트 |
 | `assets/memes/` | 강의자 로컬 전용 밈 원본. 공개 저장소에서는 제외 |
 | `assets/diagrams/` | 강의자 로컬 전용 참고 도식. 공개 저장소에서는 제외 |
-| `assets/video/` | 내부 시연 원본·최적화 MP4·포스터. 공개 저장소에서는 제외 |
+| `assets/video/` | 공개용 H.264 MP4·포스터. 원본 MOV는 로컬에서만 보관 |
 | `scripts/check-public-assets.sh` | 내부 자산이 Git에 추적되는지 검사하는 공개 전 점검 |
 | `participant-kit/` | 참가자 사전 배포용 안내·환경점검·가상 실습 프로젝트 |
 | `.participant-package-src/` | 참가자용 PDF·HWPX를 생성하는 Markdown 원본 |
@@ -32,7 +32,7 @@ node .slide-build/build-slides.mjs
 
 생성된 `koica-oos-ai-data-training.html`을 브라우저로 열거나 로컬 서버에서 실행합니다.
 
-강의자 로컬 폴더에 영상·도식·밈 파일이 없더라도 슬라이드는 깨지지 않습니다. 해당 영역에는 공개용 텍스트 대체 화면이 나타납니다.
+공개용 시연 영상은 GitHub Pages에서 슬라이드 안의 재생 버튼으로 볼 수 있습니다. 공개하지 않는 도식·밈 파일이 없더라도 슬라이드는 깨지지 않으며 해당 영역에는 텍스트 대체 화면이 나타납니다.
 
 macOS·Linux:
 
@@ -59,7 +59,8 @@ py -m http.server 8000
 
 - 발표 내용은 Markdown에서 수정하고 빌드 결과인 HTML도 함께 커밋합니다.
 - `output/`의 렌더링 캡처와 `.playwright-cli/` 로그는 로컬 검수 산출물이므로 Git에서 제외합니다.
-- `artifacts/`, `assets/video/`, `assets/diagrams/`와 로컬 전용 밈 파일은 공개 Git 저장소에서 제외합니다.
+- `artifacts/`, `assets/diagrams/`, 원본 MOV와 로컬 전용 밈 파일은 공개 Git 저장소에서 제외합니다.
+- `assets/video/`에서는 이름이 `*-demo.mp4`, `*-poster.jpg`인 공개 허용 자산만 추적합니다.
 - 내부용 밈 자산과 제작 기록은 공개 저장소에서 제외합니다.
 - 공개본에서는 밈 이미지 대신 같은 메시지의 텍스트 대체 화면을 사용합니다.
 - 외부 배포 전에는 이미지와 인용 자료의 사용 권리를 다시 검토합니다.
@@ -94,7 +95,7 @@ Copyright © 2026 amnotyoung
 
 | 범위 | 라이선스 |
 |---|---|
-| 발표자료·교육 문서·가상 실습 데이터 | [CC BY 4.0](LICENSE) |
+| 발표자료·교육 문서·가상 실습 데이터·공개용 시연 영상 | [CC BY 4.0](LICENSE) |
 | 빌드·검수·자동화 코드 | [MIT](LICENSE-CODE) |
 
-KOICA와 기타 기관의 명칭·로고·상표, 제3자 자료, 내부 시연 영상과 로컬 밈 자산에는 위 라이선스가 적용되지 않습니다. 자세한 적용 범위와 권장 출처 표기는 [NOTICE.md](NOTICE.md)를 확인하세요.
+KOICA와 기타 기관의 명칭·로고·상표, 제3자 자료, 공개 저장소에서 제외한 원본 영상과 로컬 밈 자산에는 위 라이선스가 적용되지 않습니다. 자세한 적용 범위와 권장 출처 표기는 [NOTICE.md](NOTICE.md)를 확인하세요.
