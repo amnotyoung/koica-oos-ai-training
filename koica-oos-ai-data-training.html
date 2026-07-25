@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="KOICA 해외사무소 근무자를 위한 AI·데이터 활용 교육">
+<link rel="icon" href="data:,">
+<title>KOICA 해외사무소 AI·데이터 활용 교육</title>
+<style>
+  :root{
+    --blue:#2563eb;--cyan:#06b6d4;--amber:#f59e0b;--navy:#081426;--navy2:#10223d;
+    --ink:#10213a;--muted:#5b6b82;--faint:#91a0b5;--paper:#ffffff;--soft:#f3f7fc;--line:#dce5f0;
+    --danger:#dc2626;--scale:1;
+    --sans:Inter,Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+    --mono:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{width:100%;height:100%;margin:0}
+  body{overflow:hidden;background:#050b14;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  .deck{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%,#13233d 0,#050b14 68%)}
+  .stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform:translate(-50%,-50%) scale(var(--scale));transform-origin:center;border-radius:14px;overflow:hidden;box-shadow:0 36px 110px #000a;background:var(--paper)}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:54px 92px 62px;background:var(--paper)}
+  .slide.active{display:flex;animation:enter .28s ease both}
+  @keyframes enter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .slide.dark{color:#eaf3ff;background:radial-gradient(circle at 80% 10%,#17335b 0,var(--navy2) 36%,var(--navy) 100%)}
+  header{flex:none}
+  .kicker{display:flex;align-items:center;gap:12px;color:var(--blue);font-weight:800;font-size:15px;letter-spacing:.08em;text-transform:uppercase}
+  .kicker span{display:inline-block;width:30px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--blue),var(--cyan))}
+  .title{margin:13px 0 0;font-size:48px;line-height:1.15;letter-spacing:-.035em;font-weight:850;color:var(--ink)}
+  .title.long-title{font-size:40px;line-height:1.18;max-width:1160px}
+  .dark .title{color:#fff}.dark .kicker{color:#8cc9ff}.dark .kicker span{background:linear-gradient(90deg,#8cc9ff,#4de2ff)}
+  .slide-body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;margin-top:24px}
+  .slide-body>p{font-size:27px;line-height:1.48;margin:0 0 18px;color:var(--ink);font-weight:570;letter-spacing:-.018em}
+  .slide-body>p:last-child{margin-bottom:0}
+  .slide-body strong{font-weight:850;color:var(--blue)}
+  .dark .slide-body>p{color:#d7e5f7}.dark .slide-body strong{color:#7edcff}
+  footer{position:absolute;left:92px;right:92px;bottom:23px;display:grid;grid-template-columns:1fr auto auto;gap:22px;align-items:center;font-size:12px;font-weight:700;color:var(--faint)}
+  footer::before{content:"";position:absolute;left:0;right:0;top:-12px;height:2px;background:linear-gradient(90deg,var(--blue) calc(var(--progress,0)*1%),var(--line) 0)}
+  footer .part-name{color:var(--blue)}footer .slide-count{font-variant-numeric:tabular-nums;color:var(--muted)}
+  .dark footer{color:#6f87a8}.dark footer::before{background:linear-gradient(90deg,#52c7ff calc(var(--progress,0)*1%),#243650 0)}.dark footer .part-name,.dark footer .slide-count{color:#9eb6d3}
+  a{color:var(--blue);text-underline-offset:3px}
+  code{font-family:var(--mono);font-size:.84em;background:#eaf0f8;padding:.12em .35em;border-radius:5px;color:#1e3a5f}
+  pre{margin:0;background:#0c182a;color:#d9e9fb;border:1px solid #1c3453;border-radius:16px;padding:24px 28px;font-family:var(--mono);font-size:21px;line-height:1.55;white-space:pre-wrap;box-shadow:0 18px 44px #0d1b2a20}
+  pre code{background:none;color:inherit;padding:0}
+  blockquote{margin:0;border-left:6px solid var(--amber);background:#fff8e8;border-radius:0 16px 16px 0;padding:26px 32px;font-size:31px;line-height:1.48;font-weight:780;color:#763e0b}
+  .ticks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:15px}
+  .ticks li{position:relative;padding-left:34px;font-size:24px;line-height:1.42;color:#273a54;font-weight:560}
+  .ticks li::before{content:"";position:absolute;left:0;top:.48em;width:16px;height:16px;border-radius:50%;background:var(--cyan);box-shadow:0 0 0 5px #dff7fb}
+  ol.steps{list-style:none;counter-reset:item;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+  ol.steps li{counter-increment:item;display:grid;grid-template-columns:46px 1fr;align-items:center;gap:15px;font-size:22px;line-height:1.4;color:#263a54}
+  ol.steps li::before{content:counter(item);width:42px;height:42px;border-radius:12px;background:var(--blue);color:#fff;display:grid;place-items:center;font-weight:850}
+  .table-wrap{width:100%;max-height:430px;overflow:hidden;border:1px solid var(--line);border-radius:15px;box-shadow:0 14px 36px #1c335314}
+  table{width:100%;border-collapse:collapse;background:#fff;table-layout:fixed}
+  th{background:#eaf2ff;color:#1d4ed8;font-size:18px;text-align:left;padding:15px 18px;border-bottom:2px solid #c9dcfb;font-weight:850}
+  td{font-size:17px;line-height:1.35;padding:14px 18px;border-bottom:1px solid var(--line);vertical-align:top;color:#31445d}
+  tr:last-child td{border-bottom:none}
+  td strong{color:var(--ink)!important}
+  .section-open{background:linear-gradient(135deg,#f8fbff 0,#eef5ff 62%,#e9fbff 100%)}
+  .section-open::after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;right:-170px;bottom:-210px;background:radial-gradient(circle,#76dfff55 0,#2563eb0d 62%,transparent 64%)}
+  .section-open .slide-body>p:first-child{font-size:34px;max-width:900px;line-height:1.4}
+  .section-open .ticks{max-width:900px}
+  .statement .slide-body{max-width:1050px}
+  .statement .slide-body>p{font-size:31px;line-height:1.48}
+  .list .slide-body{max-width:1050px}
+  .quote .slide-body{max-width:1080px;gap:30px}
+  .quote .slide-body>p{margin-top:0}
+  .code .slide-body{gap:18px}
+  .cover{padding:0;background:radial-gradient(circle at 72% 22%,#1f4c82 0,#10294b 34%,#071426 72%)}
+  .cover::before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:46px 46px;mask-image:linear-gradient(to right,transparent,#000 35%,#000)}
+  .cover-copy{position:relative;height:100%;padding:92px 86px;display:flex;flex-direction:column;justify-content:center}
+  .cover-copy .eyebrow{font-size:16px;letter-spacing:.16em;color:#7edcff;font-weight:850;margin-bottom:24px}
+  .cover-copy h1{font-size:68px;line-height:1.08;letter-spacing:-.05em;margin:0;color:#fff;font-weight:900}
+  .cover-copy h1 span{color:#8bd7ff}
+  .cover-copy p{font-size:22px;color:#abc1dd;margin:25px 0 0;font-weight:620}
+  .signal-line{display:flex;align-items:center;gap:18px;margin-top:48px;width:520px}
+  .signal-line::before{content:"";height:2px;background:#34557c;flex:1}
+  .signal-line i{width:14px;height:14px;border-radius:50%;background:#52c7ff;box-shadow:0 0 0 5px #52c7ff1c}
+  .signal-line i:nth-last-child(-n+2){background:var(--amber);box-shadow:0 0 0 5px #f59e0b20}
+  .part-divider{padding:0;background:radial-gradient(circle at 78% 24%,#234f86 0,#102846 36%,#071426 75%);overflow:hidden}
+  .part-divider::before{content:"";position:absolute;inset:0;background-image:linear-gradient(#ffffff09 1px,transparent 1px),linear-gradient(90deg,#ffffff09 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(90deg,#000,transparent 80%)}
+  .part-divider .slide-body{margin:0;position:absolute;inset:0;padding:112px 106px;justify-content:center}
+  .divider-copy{position:relative;z-index:2;max-width:900px}
+  .divider-part{color:#72d9ff;font-size:17px;letter-spacing:.19em;font-weight:900;margin-bottom:26px}
+  .divider-title{font-size:58px!important;line-height:1.12!important;letter-spacing:-.045em!important;color:#fff!important;margin:0!important;max-width:900px}
+  .divider-copy>p{font-size:25px!important;color:#b9cbe2!important;margin:24px 0 0!important;font-weight:620!important}
+  .divider-rule{width:290px;height:4px;border-radius:5px;margin-top:38px;background:linear-gradient(90deg,#42c9ff,#f59e0b)}
+  .divider-number{position:absolute;right:-260px;top:-90px;font-size:300px;line-height:1;color:#ffffff0b;font-weight:950;letter-spacing:-.08em}
+  .part-divider footer{display:none}
+  .compare-lines{display:flex;flex-direction:column;gap:28px}
+  .compare-lines>div{display:flex;align-items:center;gap:15px;padding:25px 28px;border-radius:16px;font-size:22px}
+  .muted-path{background:#f3f5f8;color:#718097}.active-path{background:linear-gradient(90deg,#edf4ff,#e8fbff);color:#173a66;border:1px solid #c6e8f6}
+  .compare-lines strong{margin-left:auto;font-size:25px}
+  .compare-lines b{color:var(--cyan)}
+  .connector-visual{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:30px}
+  .connector-main{font-size:28px;font-weight:850;background:var(--navy2);color:#fff;border-radius:16px;padding:28px 38px}
+  .connector-main small{display:block;margin-top:6px;font-size:14px;color:#afc7e5}
+  .connector-bus{width:170px;height:4px;background:linear-gradient(90deg,var(--blue),var(--cyan));position:relative}
+  .connector-bus span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:#fff;border:2px solid var(--cyan);color:#087a8c;border-radius:999px;padding:8px 16px;font-weight:850}
+  .connector-targets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:350px}
+  .connector-targets span{background:#edf6ff;border:1px solid #cce2fa;border-radius:10px;padding:11px;text-align:center;font-size:18px;font-weight:750;color:#245080}
+  .tool-link .slide-body>p:last-child{font-size:18px;margin-top:26px}
+  .tool-link .slide-body>p:last-child a{display:inline-block;padding:10px 14px;border:1px solid #bcd7f8;border-radius:10px;background:#edf5ff;font-weight:800;text-decoration:none}
+  .big-conclusion{text-align:center!important;font-size:28px!important;color:#30445f!important}
+  .big-conclusion.danger{color:var(--danger)!important;font-size:34px!important;font-weight:850!important}
+  .pipeline{display:flex;align-items:stretch;gap:12px}
+  .pipeline>div{flex:1;border:1px solid var(--line);border-radius:15px;padding:22px;background:#f8fbff;display:flex;flex-direction:column;gap:7px}
+  .pipeline>div.accent{background:linear-gradient(160deg,#eaf2ff,#e5fbff);border-color:#91d9ec}
+  .pipeline>b{display:grid;place-items:center;color:var(--cyan);font-size:30px}
+  .pipeline small{color:var(--blue);font-weight:850}.pipeline strong{font-size:22px;color:var(--ink)!important}.pipeline span{font-size:16px;color:var(--muted)}
+  .parse-flow{display:grid;grid-template-columns:1.2fr .6fr 1.2fr;align-items:center;gap:35px}
+  .file-cloud{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .file-cloud span{background:#f1f5fa;border:1px solid var(--line);padding:20px;border-radius:13px;font:800 20px var(--mono);text-align:center}
+  .parse-box,.text-output{padding:28px;border-radius:17px;text-align:center;font-size:28px;font-weight:850}
+  .parse-box{background:var(--blue);color:#fff}.text-output{background:#e7fbff;color:#0f6474;border:1px solid #a3e7f2}
+  .parse-box small,.text-output small{display:block;font-size:14px;margin-top:8px;font-weight:650;opacity:.8}
+  .warning-line{text-align:center!important;margin-top:28px!important;color:#9a3412!important;font-size:23px!important}
+  .meme-sidecar-grid{display:grid;grid-template-columns:1fr 1fr;gap:44px;align-items:center}
+  .scatter-list{display:flex;flex-wrap:wrap;gap:10px}
+  .scatter-list span{padding:12px 16px;border-radius:10px;background:#eef3f9;color:#44566d;font-size:18px;font-weight:700;transform:rotate(-1deg)}
+  .scatter-list span:nth-child(even){transform:rotate(1.4deg);background:#edf9fb}
+  .meme-setup p{font-size:29px;line-height:1.4;color:var(--ink);margin:26px 0 0}
+  .slide-meme{margin:0;position:relative}
+  .meme-sidecar-grid .slide-meme{background:#fff;border:1px solid var(--line);border-radius:17px;padding:12px 12px 16px;box-shadow:0 18px 44px #0b1f3725}
+  .meme-sidecar-grid .slide-meme img{display:block;width:100%;border-radius:11px}
+  .meme-sidecar-grid figcaption{font-size:22px;line-height:1.35;margin:13px 5px 0;color:#263a54}
+  .meme-sidecar-grid figcaption strong{color:var(--blue)}
+  .slide-meme>small{display:block;margin-top:7px;color:var(--faint);font-size:10px;font-weight:650}
+  .relation-visual{display:grid;grid-template-columns:1fr 1.3fr 1fr;align-items:center;gap:20px}
+  .relation-node{border:2px solid #bed7f7;background:#eef5ff;color:#1e4a7c;border-radius:16px;padding:28px;text-align:center;font-size:24px;font-weight:850}
+  .relation-link{position:relative;text-align:center;color:#0e7490}
+  .relation-link::before,.relation-link::after{content:"";position:absolute;top:28px;width:33%;height:3px;background:var(--cyan)}
+  .relation-link::before{left:0}.relation-link::after{right:0}
+  .relation-link strong{display:block;font-size:18px}.relation-link span{display:block;margin-top:12px;color:var(--muted);font-size:15px}
+  .cycle{display:flex;align-items:center;justify-content:center;gap:13px}
+  .cycle span{background:#eef5ff;color:#245080;border:1px solid #c8dcf7;border-radius:999px;padding:16px 22px;font-size:20px;font-weight:800}
+  .cycle b{color:var(--cyan);font-size:25px}
+  .prompt-shrink{display:grid;grid-template-columns:1.7fr 70px 1fr;align-items:center;gap:20px}
+  .long-prompt{border:1px solid var(--line);background:#f4f7fb;border-radius:14px;padding:23px;font-family:var(--mono);font-size:16px;line-height:1.5;color:#5c6b7e}
+  .prompt-shrink>b{text-align:center;color:var(--cyan);font-size:30px}
+  .short-command{border-radius:15px;padding:28px;background:var(--navy2);color:#7edcff;font:850 30px var(--mono);text-align:center;box-shadow:0 18px 42px #0a19302a}
+  .meme-handshake{background:linear-gradient(145deg,#f8fbff,#edf6ff)}
+  .meme-handshake .slide-body{margin-top:4px}
+  .handshake-meme{text-align:center}
+  .handshake-frame{position:relative;width:620px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 22px 54px #09182d36;border:1px solid #b9c9da;background:#fff}
+  .handshake-frame img{display:block;width:100%}
+  .hand-label{position:absolute;z-index:2;color:#fff;font-size:23px;font-weight:900;line-height:1.05;background:#071426dc;border-radius:10px;padding:9px 12px;box-shadow:0 6px 18px #0003}
+  .hand-label small{font-size:12px;color:#dce8f5}.hand-label.left{left:22px;bottom:34px}.hand-label.right{right:22px;bottom:34px}.hand-label.center{left:50%;top:18px;transform:translateX(-50%);width:max-content;color:#fff3c4;font-size:20px}
+  .handshake-meme figcaption{font-size:22px;font-weight:850;color:var(--ink);margin-top:8px}.handshake-meme>small{margin-top:3px}
+  .model-role-grid{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center;gap:18px}
+  .model-role-grid>b{font-size:38px;color:var(--cyan);text-align:center}
+  .model-role{padding:25px 30px;border-radius:18px;background:#f3f7fc;border:1px solid var(--line)}
+  .model-role.plan{border-left:7px solid var(--blue)}.model-role.execute{border-left:7px solid var(--amber)}
+  .model-role>span{display:block;font-size:13px;letter-spacing:.14em;font-weight:900;color:var(--muted)}
+  .model-role>strong{display:block;margin:7px 0 13px;font-size:37px;color:var(--ink)!important}
+  .model-role ul{margin:0;padding-left:21px;color:#344962;font-size:18px;line-height:1.55}
+  .layer-stack{display:flex;flex-direction:column;gap:12px;width:850px;margin:0 auto}
+  .layer-stack>div{display:grid;grid-template-columns:240px 1fr;align-items:center;border-radius:14px;padding:20px 26px;background:#f2f6fb;border-left:8px solid var(--blue)}
+  .layer-stack>div:nth-child(2){margin-left:70px;border-left-color:var(--cyan)}.layer-stack>div:nth-child(3){margin-left:140px;border-left-color:var(--amber)}
+  .layer-stack strong{font-size:24px;color:var(--ink)!important}.layer-stack span{font-size:19px;color:var(--muted)}
+  .architecture{display:flex;align-items:center;justify-content:center;gap:22px}
+  .architecture>div{width:260px;border-radius:17px;padding:28px;text-align:center;font-size:25px;font-weight:850}
+  .architecture>div small{display:block;font-size:14px;line-height:1.4;margin-top:8px;font-weight:650}
+  .browser-box{background:#eef5ff;color:#1d4e89;border:1px solid #bfd8f7}.web-box{background:var(--blue);color:#fff}.db-box{background:#e9fbf4;color:#116149;border:1px solid #a7e3cf}
+  .architecture>b{font-size:27px;color:var(--cyan)}
+  .deployment{max-width:920px;margin:0 auto}.deployment>div{padding:28px}
+  .deploy-command{width:720px;margin:24px auto 0;font-size:20px;padding:17px 24px;text-align:center}
+  .split-def{display:grid;grid-template-columns:1fr 1fr;gap:26px}
+  .split-def>div{padding:32px;border-radius:18px;background:#f2f6fb;border:1px solid var(--line)}
+  .split-def>div:last-child{background:linear-gradient(145deg,#eaf2ff,#e6fbff);border-color:#b7dded}
+  .split-def span{display:block;color:var(--muted);font-size:15px;font-weight:750}.split-def strong{display:block;font-size:42px;margin:12px 0;color:var(--ink)!important}.split-def p{font-size:19px;color:#3d5069}
+  .loop-layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:34px;align-items:center}
+  .handoff-list{display:flex;flex-direction:column;gap:9px;padding:24px 27px;border-left:7px solid var(--amber);background:#fff8e9;border-radius:0 16px 16px 0}
+  .handoff-list span{font-size:15px;color:#8a5a16;font-weight:800}.handoff-list strong{font-size:21px;color:#263a54!important}
+  .loop-ring{display:flex;align-items:center;justify-content:center;gap:8px;padding:34px 20px;border-radius:999px;background:linear-gradient(135deg,#eaf2ff,#e5fbff);border:2px solid #a7dceb}
+  .loop-ring span{background:#fff;border:1px solid #c9ddf2;border-radius:999px;padding:15px 18px;color:#1d4e89;font-size:18px;font-weight:850}
+  .loop-ring b{font-size:25px;color:var(--cyan)}
+  .remote-setup ol.steps{gap:8px}
+  .remote-setup ol.steps li{font-size:20px;line-height:1.32}
+  .remote-setup ol.steps li::before{width:38px;height:38px}
+  .remote-setup .slide-body>p:last-child{margin-top:10px;font-size:17px}
+  .ops-check{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+  .ops-check>div{height:165px;border:2px dashed #cbd5e1;border-radius:16px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:12px;background:#f8fafc;color:#7b8797}
+  .ops-check>div.done{border-style:solid;border-color:#83d2bc;background:#e9fbf4;color:#137052}
+  .ops-check span{font-size:35px;font-weight:900}.ops-check strong{font-size:20px;color:inherit!important}
+  .project-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .project-column{padding:29px 31px;border-radius:18px;background:#f4f8fc;border:1px solid var(--line);border-top:6px solid var(--blue)}
+  .project-column:nth-child(2){border-top-color:var(--cyan)}
+  .project-column>strong{font-size:27px;color:var(--ink)!important}
+  .project-column ul{margin:18px 0 22px;padding-left:22px;color:#334963;font-size:18px;line-height:1.55}
+  .project-column a{display:inline-block;padding:10px 14px;border-radius:9px;background:#e6efff;color:#1d4ed8;font-size:16px;font-weight:850;text-decoration:none}
+  .threads-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:34px}
+  .threads-grid>div{padding:27px 30px;border-radius:18px;background:#f4f8fc;border:1px solid var(--line)}
+  .threads-grid>div:last-child{background:#edf8fb;border-color:#b9e5ee}
+  .threads-grid strong{font-size:25px;color:var(--ink)!important}
+  .threads-grid ul{margin:18px 0 0;padding-left:22px;color:#344962;font-size:18px;line-height:1.65}
+  .account-list a{font-family:var(--mono);font-weight:850;text-decoration:none}
+  .closing{display:flex;flex-direction:column;gap:18px}
+  .closing p{font-size:37px!important;color:#263a54!important;margin:0!important}
+  .closing p strong{color:var(--blue)!important}
+  .closing-mark{margin-top:20px;padding:20px 24px;border-left:6px solid var(--amber);background:#fff8e6;color:#7b430a;font-size:23px;font-weight:800}
+  #appendix-03 pre{font-size:16px;line-height:1.38;padding:18px 22px}
+  aside.notes{display:none}
+  .notes-panel{position:fixed;z-index:50;left:0;right:0;bottom:0;max-height:44vh;overflow:auto;background:#071221f5;color:#dce8f7;border-top:3px solid var(--cyan);padding:20px 30px;font-size:15px;line-height:1.6;display:none;backdrop-filter:blur(5px)}
+  .notes-panel.show{display:block}.notes-panel p{margin:0 0 8px}.notes-panel ul{margin:7px 0 0;padding-left:22px}.notes-panel a{color:#78d9ff}.note-sources{margin-top:13px;padding-top:12px;border-top:1px solid #28415f}.note-sources h6{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#78d9ff;margin:0 0 8px}
+  .controls{position:fixed;right:16px;top:13px;z-index:40;display:flex;gap:8px;color:#8ea5c2;font-size:12px;align-items:center}
+  .controls kbd{border:1px solid #334b69;background:#172940;color:#dbe8f7;border-radius:6px;padding:3px 7px;font:700 11px var(--sans)}
+  .overview{position:fixed;inset:0;z-index:60;display:none;background:#050b14ed;padding:28px;overflow:auto}
+  .overview.show{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:14px}
+  .overview button{appearance:none;text-align:left;border:1px solid #2b415d;background:#0d1b2d;color:#dce8f7;border-radius:12px;padding:14px;min-height:110px;cursor:pointer;font:700 14px/1.4 var(--sans)}
+  .overview button:hover{border-color:#52c7ff;background:#132842}.overview button small{display:block;color:#6f8bae;margin-bottom:7px}
+  .slide:not(.active){display:none}
+  @media(max-width:900px){.controls{display:none}}
+  @media print{
+    @page{size:1280px 720px;margin:0}
+    body{overflow:visible;background:#fff}.deck{position:static;background:#fff}.stage{position:static;transform:none!important;width:1280px;height:auto;box-shadow:none;border-radius:0}
+    .slide{display:flex!important;position:relative;width:1280px;height:720px;page-break-after:always;break-after:page}
+    .controls,.notes-panel,.overview{display:none!important}
+  }
+</style>
+</head>
+<body>
+<div class="controls"><span>이동 <kbd>←</kbd><kbd>→</kbd></span><span>노트 <kbd>N</kbd></span><span>목록 <kbd>O</kbd></span><span>전체화면 <kbd>F</kbd></span></div>
+<div class="deck"><div class="stage" id="stage">
+    <section class="slide cover dark" id="slide-01" data-index="0" data-part="1부. Claude Code에서 시작하기">
+
+      <main class="slide-body">
+      <div class="cover-copy">
+        <div class="eyebrow">KOICA 해외사무소 · AI & DATA</div>
+        <h1>AI·데이터 활용,<br><span>해외사무소의 일을 다시 설계하다</span></h1>
+        <p>Claude Code · MCP · LLM Wiki · Skills · Plugins · Web · GitHub</p>
+        <div class="signal-line"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Claude Code에서 시작하기</span>
+        <span class="slide-count">01 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>오늘의 목표는 AI 도구를 많이 외우는 것이 아니다.</li><li>평소 하던 회의, 문서 검토, 규정 확인, 자료 정리, 공유 업무가 하나의 흐름으로 이어질 수 있다는 것을 보여준다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-02" data-index="1" data-part="1부. Claude Code에서 시작하기">
+      <header><div class="kicker"><span></span>1부</div><h2 class="title">좋은 답변보다 좋은 흐름이 오래 남는다</h2></header>
+      <main class="slide-body">
+      <div class="compare-lines">
+        <div class="muted-path"><span>질문 한 번</span><b>→</b><span>답변 한 번</span><strong>업무 한 번</strong></div>
+        <div class="active-path"><span>자료</span><b>→</b><span>근거</span><b>→</b><span>산출물</span><b>→</b><span>공유</span><b>→</b><span>개선</span><strong>업무가 이어지는 흐름</strong></div>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Claude Code에서 시작하기</span>
+        <span class="slide-count">02 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>웹에서 LLM을 쓰는 경험도 충분히 유용하다.</li><li>오늘은 그 다음 단계, AI가 파일과 도구를 사용하면서 결과물을 남기는 경험에 집중한다.</li><li>챗봇과 에이전트의 이론적 차이를 길게 설명하지 않는다. 이후 시연에서 자연스럽게 체감하게 한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-03" data-index="2" data-part="1부. Claude Code에서 시작하기">
+      <header><div class="kicker"><span></span>1부</div><h2 class="title long-title">Claude Code로 시작하고, ChatGPT(Codex)도 함께 쓴다</h2></header>
+      <main class="slide-body"><p>Claude Code는</p>
+<ul class="ticks"><li>프로젝트 폴더를 읽고</li><li>파일을 만들고 고치며</li><li>명령을 실행하고</li><li>외부 도구를 연결한다</li></ul>
+<p><strong>ChatGPT의 Codex에서도 같은 방식으로 일할 수 있다</strong></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Claude Code에서 시작하기</span>
+        <span class="slide-count">03 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>강의의 기본 화면은 Claude Code로 유지한다.</li><li>같은 원리는 ChatGPT의 Codex에서도 적용된다. 프로젝트 폴더, 파일, 명령, 외부 도구를 연결해 결과를 남길 수 있다는 점은 같다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://code.claude.com/docs/en/features-overview" target="_blank" rel="noreferrer">Claude Code 기능 개요</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide quote " id="slide-04" data-index="3" data-part="1부. Claude Code에서 시작하기">
+      <header><div class="kicker"><span></span>1부</div><h2 class="title">차이는 설명보다 파일 하나가 보여준다</h2></header>
+      <main class="slide-body"><blockquote>“이 폴더의 자료를 읽고 오늘 교육 안내문을 만들어줘.”</blockquote>
+<p>채팅창의 답변이 아니라  <br><strong>프로젝트 안의 파일로 남는다</strong></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Claude Code에서 시작하기</span>
+        <span class="slide-count">04 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>웹 LLM과 Claude Code의 차이는 이 정도만 말한다.</li><li>앞으로는 “무슨 모델인가”보다 “어떤 자료·도구·절차와 연결했는가”가 중요해진다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide part-divider dark" id="part-02" data-index="4" data-part="2부. MCP로 실제 자료와 도구 연결하기">
+
+      <main class="slide-body">
+      <div class="divider-copy">
+        <div class="divider-part">PART 02</div>
+        <h2 class="title divider-title">도구와 원천을 연결한다</h2>
+        <p>말 잘하는 AI를 근거를 확인하는 업무 도구로</p>
+        <div class="divider-rule"></div>
+        <span class="divider-number">02</span>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">MCP로 실제 자료와 도구 연결하기</span>
+        <span class="slide-count">05 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>2부. MCP로 실제 자료와 도구 연결하기의 시작을 분명히 알리는 전환 슬라이드입니다.</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-05" data-index="5" data-part="2부. MCP로 실제 자료와 도구 연결하기">
+      <header><div class="kicker"><span></span>2부</div><h2 class="title">AI에게 손을 달아주는 표준, MCP</h2></header>
+      <main class="slide-body">
+      <div class="connector-visual">
+        <div class="connector-main">LLM <small>(Claude Code)</small></div>
+        <div class="connector-bus"><span>MCP</span></div>
+        <div class="connector-targets">
+          <span>규정</span><span>법령</span><span>문서</span><span>회의</span><span>DB</span>
+        </div>
+      </div>
+      <p class="big-conclusion">AI에게 <strong>손을 달아주는</strong> 공통 연결 단자</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">MCP로 실제 자료와 도구 연결하기</span>
+        <span class="slide-count">06 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>MCP는 AI와 외부 도구·데이터를 연결하는 공통 방식이라고 설명한다.</li><li>기술 규격보다 “AI용 공통 연결 단자”라는 비유를 사용한다.</li><li>연결했다고 결과가 항상 옳아지는 것은 아니다. 어떤 원천을 조회했는지 확인하는 습관이 필요하다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://code.claude.com/docs/en/mcp" target="_blank" rel="noreferrer">Claude Code MCP 문서</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide tool-link statement " id="slide-06" data-index="6" data-part="2부. MCP로 실제 자료와 도구 연결하기">
+      <header><div class="kicker"><span></span>2부</div><h2 class="title">첫 번째 연결: KOICA 규정을 직접 조회한다</h2></header>
+      <main class="slide-body"><p><strong>koica-reg</strong></p>
+<p>“이 규정이 실제로 존재하는가?”  <br>“정확히 몇 조인가?”  <br>“관련 규정은 어디로 이어지는가?”</p>
+<p><a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">도구 안내 · amnotyoung/koica-reg-mcp</a></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">MCP로 실제 자료와 도구 연결하기</span>
+        <span class="slide-count">07 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>맨 먼저 자연어 검색 결과를 보여준다.</li><li>이어서 정확한 조문 본문 조회와 인용 검증을 보여준다.</li><li>업무상 중요한 판단에서는 최종적으로 공식 최신 원문을 확인해야 한다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">KOICA Regulation MCP</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide tool-link statement " id="slide-07" data-index="7" data-part="2부. MCP로 실제 자료와 도구 연결하기">
+      <header><div class="kicker"><span></span>2부</div><h2 class="title">두 번째 연결: 내부 규정 밖의 법령을 확인한다</h2></header>
+      <main class="slide-body"><p><strong>korean-law</strong></p>
+<p>KOICA 규정과 한국 법령은  <br><strong>서로 다른 원천이다</strong></p>
+<p>필요하면 두 도구를 함께 사용한다</p>
+<p><a href="https://github.com/chrisryugj/korean-law-mcp" target="_blank" rel="noreferrer">도구 안내 · chrisryugj/korean-law-mcp</a></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">MCP로 실제 자료와 도구 연결하기</span>
+        <span class="slide-count">08 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>AI가 내부 규정과 국가 법령을 뒤섞지 않도록 원천을 분리한다.</li><li>“관련 내용을 알려줘”보다 “각 주장에 규정명·법령명·조문을 붙여줘”라고 요청한다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://github.com/chrisryugj/korean-law-mcp" target="_blank" rel="noreferrer">korean-law-mcp</a></li><li><a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">KOICA Regulation MCP의 연계 설명</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide tool-link statement " id="slide-08" data-index="8" data-part="2부. MCP로 실제 자료와 도구 연결하기">
+      <header><div class="kicker"><span></span>2부</div><h2 class="title">세 번째 연결: 읽기 어려운 문서를 텍스트로 바꾼다</h2></header>
+      <main class="slide-body"><p><strong>kordoc</strong></p>
+<p>HWP · HWPX · PDF · Office  <br>↓  <br>Markdown</p>
+<p><a href="https://github.com/chrisryugj/kordoc" target="_blank" rel="noreferrer">도구 안내 · chrisryugj/kordoc</a></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">MCP로 실제 자료와 도구 연결하기</span>
+        <span class="slide-count">09 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>여기서는 바이너리와 텍스트의 이론을 아직 설명하지 않는다.</li><li>“AI가 읽게 하려면 우선 내용이 보이는 형태로 꺼내야 한다”는 경험만 준다.</li><li>표, 각주, 병합 셀, 이미지가 있는 문서는 변환 결과를 사람이 확인해야 한다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://github.com/chrisryugj/kordoc" target="_blank" rel="noreferrer">kordoc</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide tool-link statement " id="slide-09" data-index="9" data-part="2부. MCP로 실제 자료와 도구 연결하기">
+      <header><div class="kicker"><span></span>2부</div><h2 class="title">마지막 연결: 회의도 검색 가능한 자료가 된다</h2></header>
+      <main class="slide-body"><p><strong>Tiro</strong></p>
+<p>회의 음성  <br>↓  <br>회의록 · 요약 · 화자별 발화  <br>↓  <br>Claude Code가 활용하는 컨텍스트</p>
+<p><a href="https://docs.tiro.ooo/ko/developers/mcp/mcp-overview" target="_blank" rel="noreferrer">Tiro MCP 공식 안내</a></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">MCP로 실제 자료와 도구 연결하기</span>
+        <span class="slide-count">10 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Tiro는 네 도구 중 마지막에 소개한다.</li><li>문서에 이미 존재하는 정보뿐 아니라, 말로만 오간 정보도 업무 데이터가 될 수 있다는 확장이다.</li><li>참석자·개인정보·민감내용이 있는 회의는 조직의 자료 취급 기준을 먼저 따른다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://tiro.ooo/ko/" target="_blank" rel="noreferrer">Tiro 공식 사이트</a></li><li><a href="https://docs.tiro.ooo/ko/developers/mcp/mcp-overview" target="_blank" rel="noreferrer">Tiro MCP 개요</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-10" data-index="10" data-part="2부. MCP로 실제 자료와 도구 연결하기">
+      <header><div class="kicker"><span></span>2부</div><h2 class="title">네 도구가 하나의 업무로 연결된다</h2></header>
+      <main class="slide-body">
+      <div class="pipeline">
+        <div><small>01</small><strong>Tiro 회의</strong><span>말을 기록한다</span></div>
+        <b>→</b>
+        <div><small>02</small><strong>kordoc</strong><span>문서를 텍스트로</span></div>
+        <b>→</b>
+        <div><small>03</small><strong>규정 + 법령</strong><span>근거를 검증한다</span></div>
+        <b>→</b>
+        <div class="accent"><small>04</small><strong>산출물</strong><span>MD · CSV · 근거표</span></div>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">MCP로 실제 자료와 도구 연결하기</span>
+        <span class="slide-count">11 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>네 개의 도구를 개별 제품 소개로 끝내지 않는다.</li><li>하나의 요청으로 회의, 첨부문서, 규정 근거를 함께 묶어 산출물을 만드는 시연을 한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-11" data-index="11" data-part="2부. MCP로 실제 자료와 도구 연결하기">
+      <header><div class="kicker"><span></span>2부</div><h2 class="title">도구가 많아서가 아니라 흐름이 이어져서 강하다</h2></header>
+      <main class="slide-body"><p>도구 4개를 아는 것  <br>≠  <br>업무가 자동으로 좋아지는 것</p>
+<p><strong>입력 → 변환 → 검증 → 산출물</strong>  <br>순서가 있어야 한다</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">MCP로 실제 자료와 도구 연결하기</span>
+        <span class="slide-count">12 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>이제 이 흐름이 왜 가능한지 설명하기 위해 바이너리와 텍스트로 넘어간다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide part-divider dark" id="part-03" data-index="12" data-part="3부. 바이너리에서 텍스트로">
+
+      <main class="slide-body">
+      <div class="divider-copy">
+        <div class="divider-part">PART 03</div>
+        <h2 class="title divider-title">파일을 AI가 읽는 형태로 바꾼다</h2>
+        <p>보이는 원본을 검산 가능한 텍스트로</p>
+        <div class="divider-rule"></div>
+        <span class="divider-number">03</span>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">바이너리에서 텍스트로</span>
+        <span class="slide-count">13 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>3부. 바이너리에서 텍스트로의 시작을 분명히 알리는 전환 슬라이드입니다.</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-12" data-index="13" data-part="3부. 바이너리에서 텍스트로">
+      <header><div class="kicker"><span></span>3부</div><h2 class="title">파일이 열린다고 AI가 잘 읽는 것은 아니다</h2></header>
+      <main class="slide-body"><p>사람에게는 한 장의 문서  <br>AI에게는 해석해야 할 구조</p>
+<p><strong>파일을 열 수 있다</strong>  <br>≠  <br><strong>내용을 정확히 이해했다</strong></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">바이너리에서 텍스트로</span>
+        <span class="slide-count">14 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>최신 AI가 Office 파일을 상당히 잘 처리하는 것은 사실이다.</li><li>핵심은 “절대 못 읽는다”가 아니라, 무엇을 읽었는지 검산하기 어렵다는 점이다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide code " id="slide-13" data-index="14" data-part="3부. 바이너리에서 텍스트로">
+      <header><div class="kicker"><span></span>3부</div><h2 class="title">바이너리 파일에는 번역 단계가 숨어 있다</h2></header>
+      <main class="slide-body">
+      <div class="parse-flow">
+        <div class="file-cloud"><span>HWP</span><span>HWPX</span><span>PDF</span><span>Office</span></div>
+        <div class="parse-box">kordoc<small>HWP → MD 파싱</small></div>
+        <div class="text-output">Markdown + 구조<small>사람이 검산할 수 있는 형태</small></div>
+      </div>
+      <p class="warning-line">파싱이 틀리면 답변도 자신 있게 틀릴 수 있습니다.</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">바이너리에서 텍스트로</span>
+        <span class="slide-count">15 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>HWP를 Markdown으로 파싱해주는 도구가 바로 kordoc이라는 점을 연결한다.</li><li>파싱은 “파일 내부 구조를 AI가 다룰 수 있는 표현으로 번역하는 일”이라고 설명한다.</li><li>변환 결과가 눈에 보이면 사람이 누락·왜곡을 확인할 수 있다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide table " id="slide-14" data-index="15" data-part="3부. 바이너리에서 텍스트로">
+      <header><div class="kicker"><span></span>3부</div><h2 class="title">목적에 맞는 텍스트 형식이 있다</h2></header>
+      <main class="slide-body"><div class="table-wrap"><table><thead><tr><th>형식</th><th>잘하는 일</th></tr></thead><tbody><tr><td><code>.md</code></td><td>문서, 지침, Wiki, 보고서</td></tr><tr><td><code>.csv</code></td><td>표, 목록, 집계, 검산</td></tr><tr><td><code>.txt</code></td><td>원문, 로그, 단순 기록</td></tr><tr><td><code>.html</code></td><td>브라우저에서 공유하는 결과물</td></tr></tbody></table></div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">바이너리에서 텍스트로</span>
+        <span class="slide-count">16 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>모든 것을 Markdown으로 만들자는 이야기가 아니다.</li><li>자료의 구조와 최종 사용처에 맞는 형식을 선택한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-15" data-index="16" data-part="3부. 바이너리에서 텍스트로">
+      <header><div class="kicker"><span></span>3부</div><h2 class="title">텍스트는 사람과 AI가 함께 고치기 쉽다</h2></header>
+      <main class="slide-body"><p>텍스트 파일은</p>
+<ul class="ticks"><li>바로 검색할 수 있고</li><li>변경점을 비교할 수 있고</li><li>되돌릴 수 있고</li><li>여러 결과물로 바꿀 수 있다</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">바이너리에서 텍스트로</span>
+        <span class="slide-count">17 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>이 장면이 뒤의 Git과 GitHub를 위한 복선이다.</li><li>AI와 협업할수록 변경 이력과 검토 가능성이 중요해진다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide steps " id="slide-16" data-index="17" data-part="3부. 바이너리에서 텍스트로">
+      <header><div class="kicker"><span></span>3부</div><h2 class="title">텍스트 우선은 최종 형식이 아니라 작업 원칙이다</h2></header>
+      <main class="slide-body"><ol class="steps"><li><span>원본은 보존한다  </span></li><li><span>작업용 텍스트를 만든다  </span></li><li><span>변환 결과를 검산한다  </span></li><li><span>텍스트에서 반복 작업을 수행한다  </span></li><li><span>필요하면 Office·PDF·웹으로 내보낸다</span></li></ol></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">바이너리에서 텍스트로</span>
+        <span class="slide-count">18 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>원본 삭제를 권하지 않는다.</li><li>원본과 작업용 텍스트를 분리하면 추적과 재처리가 쉬워진다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide meme-sidecar " id="slide-17" data-index="18" data-part="3부. 바이너리에서 텍스트로">
+      <header><div class="kicker"><span></span>3부</div><h2 class="title">“나중에 정리해야지”는 대개 검색되지 않는다</h2></header>
+      <main class="slide-body">
+      <div class="meme-sidecar-grid">
+        <div class="meme-setup">
+          <div class="scatter-list"><span>다운로드 폴더</span><span>메신저 첨부파일</span><span>회의 메모</span><span>브라우저 북마크</span><span>내 머릿속의 연결</span></div>
+          <p>쌓였지만 아직 <strong>지식은 아닙니다</strong></p>
+        </div>
+        <figure class="slide-meme" data-meme-role="reaction" data-meme-source="https://knowyourmeme.com/memes/confused-travolta/" data-meme-origin="searched">
+          <img src="assets/memes/confused-travolta.jpg" alt="방 안을 둘러보며 찾는 대상을 발견하지 못한 듯한 남성">
+          <figcaption>분명 저장했습니다.<br><strong>어디에 저장했는지만 빼고.</strong></figcaption>
+          <small>Confused Travolta · rights unclear · internal only</small>
+        </figure>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">바이너리에서 텍스트로</span>
+        <span class="slide-count">19 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>이 슬라이드에서 잠깐 호흡을 풀고 LLM Wiki로 전환한다.</li><li>특정 직원이나 조직의 문서관리 방식을 조롱하지 않는다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide part-divider dark" id="part-04" data-index="19" data-part="4부. Brain dumping에서 LLM Wiki로">
+
+      <main class="slide-body">
+      <div class="divider-copy">
+        <div class="divider-part">PART 04</div>
+        <h2 class="title divider-title">쌓인 자료를 관계 있는 지식으로 만든다</h2>
+        <p>Brain dumping에서 LLM Wiki로</p>
+        <div class="divider-rule"></div>
+        <span class="divider-number">04</span>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Brain dumping에서 LLM Wiki로</span>
+        <span class="slide-count">20 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>4부. Brain dumping에서 LLM Wiki로의 시작을 분명히 알리는 전환 슬라이드입니다.</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-18" data-index="20" data-part="4부. Brain dumping에서 LLM Wiki로">
+      <header><div class="kicker"><span></span>4부</div><h2 class="title">먼저 쌓고, AI와 함께 정리한다</h2></header>
+      <main class="slide-body"><p><strong>Brain dumping</strong></p>
+<p>완벽하게 분류한 뒤 기록하지 않는다  <br>생각·링크·문서·메모를 먼저 남긴다</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Brain dumping에서 LLM Wiki로</span>
+        <span class="slide-count">21 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>기록 진입장벽을 낮추는 것이 먼저다.</li><li>정리되지 않은 입력도 출처와 날짜 정도는 남긴다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide steps " id="slide-19" data-index="21" data-part="4부. Brain dumping에서 LLM Wiki로">
+      <header><div class="kicker"><span></span>4부</div><h2 class="title long-title">LLM Wiki는 검색·원문·연결을 한 흐름으로 탐색한다</h2></header>
+      <main class="slide-body"><p><strong>Tiro Workspace Wiki</strong></p>
+<ol class="steps"><li><span>검색 — 질문과 관련된 페이지를 찾는다  </span></li><li><span>원문 — 페이지 내용을 확인한다  </span></li><li><span>언급 — 연결된 노트와 문서를 추적한다  </span></li><li><span>그래프 — 페이지 사이 관계망을 따라간다</span></li></ol>
+<p><strong>AI는 질문에 필요한 깊이만큼 단계적으로 조회한다</strong></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Brain dumping에서 LLM Wiki로</span>
+        <span class="slide-count">22 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Tiro MCP는 <code>search_wiki</code>, <code>get_wiki_page</code>, <code>list_wiki_mentions</code>, <code>get_wiki_graph</code>로 검색·원문·언급·관계망 탐색을 제공한다.</li><li>Wiki의 핵심은 예쁜 홈페이지가 아니라 수정 가능한 페이지와 연결이다.</li><li>AI가 초안을 만들고 사용자가 주관적으로 아는 관계를 직접 고칠 수 있다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://docs.tiro.ooo/ko/developers/mcp/mcp-overview" target="_blank" rel="noreferrer">Tiro MCP 개요</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-20" data-index="22" data-part="4부. Brain dumping에서 LLM Wiki로">
+      <header><div class="kicker"><span></span>4부</div><h2 class="title">AI가 모르는 관련성을 사용자는 알고 있다</h2></header>
+      <main class="slide-body">
+      <div class="relation-visual">
+        <div class="relation-node">세네갈 농업사업</div>
+        <div class="relation-link"><strong>비슷한 시행착오</strong><span>담당자 교체와 인수인계 실패</span></div>
+        <div class="relation-node">우간다 청년고용사업</div>
+      </div>
+      <p class="big-conclusion">AI가 모르는 관련성을 <strong>사용자는 알고 있습니다.</strong></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Brain dumping에서 LLM Wiki로</span>
+        <span class="slide-count">23 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>사용자가 주관적으로 느끼는 관련성도 중요한 지식이다.</li><li>링크에는 가능하면 “왜 연결했는가”를 함께 남긴다.</li><li>이 연결은 단어 유사도만으로는 발견되지 않을 수 있다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide table " id="slide-21" data-index="23" data-part="4부. Brain dumping에서 LLM Wiki로">
+      <header><div class="kicker"><span></span>4부</div><h2 class="title">RAG는 찾고, Wiki는 관계를 고칠 수 있다</h2></header>
+      <main class="slide-body"><div class="table-wrap"><table><thead><tr><th>RAG</th><th>LLM Wiki</th></tr></thead><tbody><tr><td>질문과 가까운 문서를 검색</td><td>페이지와 링크가 눈에 보임</td></tr><tr><td>관련성을 시스템이 계산</td><td>사용자가 관련성을 추가·수정</td></tr><tr><td>검색 결과가 질의 때 나타남</td><td>관계가 지속적인 지식으로 남음</td></tr></tbody></table></div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Brain dumping에서 LLM Wiki로</span>
+        <span class="slide-count">24 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>둘 중 하나를 버리는 관계가 아니다.</li><li>Wiki의 문서와 링크를 RAG의 검색 대상으로 사용할 수 있다.</li><li>핵심 장점은 사용자의 경험적 판단이 수정 가능한 형태로 남는 것이다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-22" data-index="24" data-part="4부. Brain dumping에서 LLM Wiki로">
+      <header><div class="kicker"><span></span>4부</div><h2 class="title">GraphRAG는 문서가 아니라 관계망도 따라간다</h2></header>
+      <main class="slide-body"><p>문서 검색  <br>↓  <br>기관 · 국가 · 사업 · 사람 · 주제  <br>사이의 관계 탐색</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Brain dumping에서 LLM Wiki로</span>
+        <span class="slide-count">25 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>GraphRAG는 비정형 텍스트에서 개체와 관계를 추출해 지식 그래프를 만들고, 질문할 때 관련 관계와 원문을 함께 사용하는 접근이라고 소개한다.</li><li>처음부터 거대한 그래프를 만들지 않는다.</li><li>사용자가 만든 관계와 AI가 추출한 관계를 구분해서 보존하는 것이 좋다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://microsoft.github.io/graphrag/index/overview/" target="_blank" rel="noreferrer">Microsoft GraphRAG 개요</a></li><li><a href="https://microsoft.github.io/graphrag/query/overview/" target="_blank" rel="noreferrer">GraphRAG Query Engine</a></li><li><a href="https://microsoft.github.io/graphrag/index/byog/" target="_blank" rel="noreferrer">Bring Your Own Graph</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-23" data-index="25" data-part="4부. Brain dumping에서 LLM Wiki로">
+      <header><div class="kicker"><span></span>4부</div><h2 class="title">Wiki도 정기적으로 건강검진이 필요하다</h2></header>
+      <main class="slide-body"><p><strong>Wiki Lint</strong></p>
+<ul class="ticks"><li>고립된 페이지</li><li>깨진 링크</li><li>출처 없는 주장</li><li>중복 페이지</li><li>이유 없는 관계</li><li>오래된 정보</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Brain dumping에서 LLM Wiki로</span>
+        <span class="slide-count">26 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>개발의 lint 개념을 지식관리에 가져온다.</li><li>자동 수정부터 시키기보다 진단 보고서를 먼저 받는다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide code " id="slide-24" data-index="26" data-part="4부. Brain dumping에서 LLM Wiki로">
+      <header><div class="kicker"><span></span>4부</div><h2 class="title">지식관리는 한 번의 정리가 아니라 반복이다</h2></header>
+      <main class="slide-body">
+      <div class="cycle">
+        <span>수집</span><b>→</b><span>정리</span><b>→</b><span>연결</span><b>→</b><span>질문</span><b>→</b><span>새 통찰</span><b>→</b><span>Lint</span>
+      </div>
+      <p class="big-conclusion">업무 중 생긴 질문과 수정이 다시 Wiki로 돌아올 때 지식이 쌓입니다.</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Brain dumping에서 LLM Wiki로</span>
+        <span class="slide-count">27 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Wiki가 완성되는 순간은 없다.</li><li>업무 중 생긴 질문과 수정이 다시 Wiki로 돌아오면 지식이 누적된다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide part-divider dark" id="part-05" data-index="27" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+
+      <main class="slide-body">
+      <div class="divider-copy">
+        <div class="divider-part">PART 05</div>
+        <h2 class="title divider-title">반복은 Skill로, 공유는 Plugin으로</h2>
+        <p>한 번 잘한 일을 동료도 재현하게</p>
+        <div class="divider-rule"></div>
+        <span class="divider-number">05</span>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">28 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>5부. 반복을 스킬로, 공유를 플러그인으로의 시작을 분명히 알리는 전환 슬라이드입니다.</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-25" data-index="28" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">같은 질문에 매번 설명을 다시 붙이지 않는다</h2></header>
+      <main class="slide-body">
+      <div class="prompt-shrink">
+        <div class="long-prompt">관련 페이지를 찾고 원문을 확인하고 근거를 붙이고 사용자 관계와 AI 관계를 구분하고…</div>
+        <b>→</b>
+        <div class="short-command">/wiki-answer</div>
+      </div>
+      <p class="big-conclusion">프롬프트를 반복하지 말고 <strong>일하는 절차를 저장합니다.</strong></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">29 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Wiki를 만들었으니 이제 이 Wiki에 답하는 표준 절차를 만든다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-26" data-index="29" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">스킬은 Claude에게 주는 업무 매뉴얼이다</h2></header>
+      <main class="slide-body"><p><strong>Skill</strong></p>
+<ul class="ticks"><li>언제 사용해야 하는지</li><li>어떤 순서로 일하는지</li><li>무엇을 참고해야 하는지</li><li>어떤 형식으로 답하는지</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">30 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Claude Code의 스킬은 <code>SKILL.md</code>를 중심으로 한 재사용 가능한 절차다.</li><li>필요할 때 사람이 직접 호출할 수도 있고, 설명이 잘 쓰여 있으면 Claude가 작업에 맞춰 선택할 수도 있다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://code.claude.com/docs/en/slash-commands" target="_blank" rel="noreferrer">Claude Code Skills</a></li><li><a href="https://code.claude.com/docs/en/claude-directory" target="_blank" rel="noreferrer">Claude Code의 <code>.claude</code> 구조</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide steps " id="slide-27" data-index="30" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">Wiki 답변 스킬의 규칙을 먼저 정한다</h2></header>
+      <main class="slide-body"><p><strong>Wiki 답변 규칙</strong></p>
+<ol class="steps"><li><span>관련 페이지를 찾는다  </span></li><li><span>원문과 링크를 확인한다  </span></li><li><span>답변마다 근거를 붙인다  </span></li><li><span>사용자 작성 관계와 AI 추출 관계를 구분한다  </span></li><li><span>근거가 부족하면 모른다고 말한다</span></li></ol></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">31 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>좋은 스킬은 프롬프트 모음이 아니라 검증 가능한 입출력 절차다.</li><li>실제 Wiki 구조와 답변 예시를 <code>references/</code>에 둘 수 있다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-28" data-index="31" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">한 번 성공한 답변을 반복 가능한 절차로 바꾼다</h2></header>
+      <main class="slide-body"><p>잘 된 대화  <br>↓  <br>공통 단계 추출  <br>↓  <br>Skill 작성  <br>↓  <br>다른 질문으로 검증</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">32 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>최초 버전이 완벽할 필요는 없다.</li><li>잘못된 답변이 나오면 프롬프트를 버리는 대신 스킬의 규칙과 예시를 고친다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-29" data-index="32" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">스킬은 다른 질문에서도 같은 규율을 지켜야 한다</h2></header>
+      <main class="slide-body"><p>검증 질문</p>
+<ul class="ticks"><li>정확한 답이 있는 질문</li><li>여러 페이지를 연결해야 하는 질문</li><li>근거가 부족한 질문</li><li>사용자가 만든 관계가 필요한 질문</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">33 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>“한 번 잘 됐다”는 스킬 검증이 아니다.</li><li>최소한 서로 다른 유형의 질문으로 시험한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-30" data-index="33" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">스킬이 일하는 방법이라면, 플러그인은 설치 단위다</h2></header>
+      <main class="slide-body"><p><strong>Skill</strong>  <br>Claude가 일하는 방법</p>
+<p><strong>Plugin</strong>  <br>그 능력을 묶어 설치·공유하는 단위</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">34 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Claude Code 플러그인은 스킬뿐 아니라 에이전트, 훅, MCP 서버 등을 포함할 수 있다.</li><li>스킬을 만드는 것과 배포하는 것을 구분한다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://code.claude.com/docs/en/plugins" target="_blank" rel="noreferrer">Claude Code 플러그인 만들기</a></li><li><a href="https://code.claude.com/docs/en/plugins-reference" target="_blank" rel="noreferrer">Claude Code 플러그인 구성요소</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide code " id="slide-31" data-index="34" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">하나의 플러그인이 Wiki 사용 환경을 함께 전달한다</h2></header>
+      <main class="slide-body"><pre data-lang="text"><code>koica-office-wiki-plugin/
+├── skills/
+│   └── wiki-answer/
+├── agents/
+├── hooks/
+└── .mcp.json</code></pre></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">35 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>교육용 첫 버전은 스킬 하나만 포함해도 된다.</li><li>이후 Wiki 검색 MCP나 품질 점검 훅을 추가할 수 있다.</li><li>모든 구성요소를 처음부터 넣어 복잡하게 만들지 않는다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-32" data-index="35" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">플러그인은 동료가 설치할 수 있어야 완성된다</h2></header>
+      <main class="slide-body"><p>만든 사람의 컴퓨터에서만 작동  <br>→ 개인 자동화</p>
+<p>동료가 설치하고 같은 결과를 재현  <br>→ 공유 가능한 역량</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">36 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Claude Code 플러그인 마켓플레이스는 플러그인을 발견·설치·업데이트하는 카탈로그다.</li><li>내부 배포라면 공개 마켓플레이스가 아니라 조직이 관리하는 저장소를 사용할 수 있다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://code.claude.com/docs/en/discover-plugins" target="_blank" rel="noreferrer">Claude Code 플러그인 설치</a></li><li><a href="https://code.claude.com/docs/en/plugin-marketplaces" target="_blank" rel="noreferrer">플러그인 마켓플레이스 만들기</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide table " id="slide-33" data-index="36" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">MCP·스킬·플러그인은 서로 다른 문제를 푼다</h2></header>
+      <main class="slide-body"><div class="table-wrap"><table><thead><tr><th>질문</th><th>선택</th></tr></thead><tbody><tr><td>외부 데이터와 도구를 어떻게 연결할까?</td><td>MCP</td></tr><tr><td>Claude가 어떤 절차로 일해야 할까?</td><td>Skill</td></tr><tr><td>이 능력을 어떻게 묶어 동료에게 전달할까?</td><td>Plugin</td></tr></tbody></table></div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">37 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>세 용어를 이 한 장으로 정리한다.</li><li>하나가 다른 하나를 대체하는 관계가 아니다.</li><li>HTML 제작 시 이 장 뒤에 <code>meme-skill-plugin</code> 전환 슬라이드를 삽입한다.</li><li>왼쪽 팔: “Skill — 일하는 방법”</li><li>오른쪽 팔: “Plugin — 설치·공유 단위”</li><li>맞잡은 손: “동료도 같은 방식으로 일한다”</li><li>역할: <code>analogy</code>. 사용자가 제공한 두 농구 선수의 협력 이미지로 Skill과 Plugin이 대체 관계가 아니라 함께 작동하는 관계임을 회수한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide meme-handshake " id="meme-skill-plugin" data-index="37" data-part="5부. 반복을 스킬로, 공유를 플러그인으로">
+      <header><div class="kicker"><span></span>5부</div><h2 class="title">Skill과 Plugin은 함께 완성됩니다</h2></header>
+      <main class="slide-body">
+      <figure class="slide-meme handshake-meme" data-meme-role="analogy" data-meme-source="user-provided" data-meme-origin="user-provided">
+        <div class="handshake-frame">
+          <img src="assets/memes/skill-plugin-bulls.webp" alt="붉은 농구 유니폼을 입은 두 선수가 손을 맞대며 협력하는 그림">
+          <span class="hand-label left">Skill<br><small>일하는 방법</small></span>
+          <span class="hand-label right">Plugin<br><small>설치·공유 단위</small></span>
+          <span class="hand-label center">동료도 같은 방식으로 일한다</span>
+        </div>
+        <figcaption>Skill은 방법, Plugin은 전달.</figcaption>
+        <small>User-provided image · rights unverified · internal only</small>
+      </figure></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">반복을 스킬로, 공유를 플러그인으로</span>
+        <span class="slide-count">38 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>Skill은 Claude가 일하는 방법이고, Plugin은 그 능력을 설치하고 공유하는 단위입니다. 둘 중 하나를 고르는 관계가 아니라 결합하는 관계입니다.</p></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li>사용자가 제공한 로컬 이미지</li><li>내부 교육용 사용. 이미지 재사용 권리 미확인.</li></ul></div></aside>
+    </section>
+
+    <section class="slide part-divider dark" id="part-06" data-index="38" data-part="6부. 계획 모드로 웹앱 만들기">
+
+      <main class="slide-body">
+      <div class="divider-copy">
+        <div class="divider-part">PART 06</div>
+        <h2 class="title divider-title">계획부터 웹앱 배포까지</h2>
+        <p>Opus로 계획하고 Sonnet으로 실행한다</p>
+        <div class="divider-rule"></div>
+        <span class="divider-number">06</span>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">39 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>6부. 계획 모드로 웹앱 만들기의 시작을 분명히 알리는 전환 슬라이드입니다.</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-34" data-index="39" data-part="6부. 계획 모드로 웹앱 만들기">
+      <header><div class="kicker"><span></span>6부</div><h2 class="title long-title">Claude Code가 없는 동료에게는 어떻게 공유할까?</h2></header>
+      <main class="slide-body"><p>지금까지 만든 Wiki와 스킬을  <br><strong>브라우저에서도 사용할 수 있게 하자</strong></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">40 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>이 질문이 계획 모드로 넘어가는 자연스러운 전환이다.</li><li>바로 코드를 만들지 않고, 사용자와 필요한 기능부터 정리한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide model-plan " id="slide-35" data-index="40" data-part="6부. 계획 모드로 웹앱 만들기">
+      <header><div class="kicker"><span></span>6부</div><h2 class="title">계획은 Opus로, 실행은 Sonnet으로 나눈다</h2></header>
+      <main class="slide-body">
+      <div class="model-role-grid">
+        <div class="model-role plan">
+          <span>PLAN</span><strong>Opus</strong>
+          <ul><li>요구사항과 범위</li><li>구조와 위험</li><li>완료·검증 기준</li></ul>
+        </div>
+        <b>→</b>
+        <div class="model-role execute">
+          <span>BUILD</span><strong>Sonnet</strong>
+          <ul><li>계획에 따른 구현</li><li>반복 수정과 테스트</li><li>결과와 변경점 기록</li></ul>
+        </div>
+      </div>
+      <p class="big-conclusion">계획은 강한 추론에, 반복 실행은 속도와 비용 효율에 맡깁니다.</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">41 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>난도가 높은 계획은 Opus로 세우고, 반복 구현은 Sonnet에 맡기는 역할 분담을 권한다.</li><li>계획도 채팅 속에만 두지 않고 <code>PLAN.md</code> 또는 이슈로 남긴다.</li><li>구현 전에 범위와 성공 조건을 사람이 검토한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-36" data-index="41" data-part="6부. 계획 모드로 웹앱 만들기">
+      <header><div class="kicker"><span></span>6부</div><h2 class="title">웹앱은 세 층으로 이해하면 된다</h2></header>
+      <main class="slide-body">
+      <div class="layer-stack">
+        <div><strong>프론트엔드</strong><span>사용자가 보고 누르는 화면</span></div>
+        <div><strong>백엔드</strong><span>요청을 처리하는 로직</span></div>
+        <div><strong>데이터베이스</strong><span>기억해야 할 정보</span></div>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">42 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>기술 스택 이름보다 각 층의 역할을 이해시키는 데 집중한다.</li><li>정적 HTML만으로 충분한 앱은 백엔드와 DB를 억지로 넣지 않는다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-37" data-index="42" data-part="6부. 계획 모드로 웹앱 만들기">
+      <header><div class="kicker"><span></span>6부</div><h2 class="title">데이터베이스도 자연어로 관리할 수 있다</h2></header>
+      <main class="slide-body"><p>Supabase MCP에 물어본다</p>
+<blockquote>“현재 테이블 구조를 설명해줘.”  <br>“Wiki 페이지와 관계를 저장할 구조를 제안해줘.”  <br>“예제 데이터를 넣고 국가별 건수를 집계해줘.”</blockquote></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">43 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>SQL을 몰라도 DB 구조를 탐색하고 초안을 만들 수 있다.</li><li>자연어가 검토를 없애는 것은 아니다. 적용 전에 제안된 SQL과 영향 범위를 확인한다.</li><li>Supabase 플러그인은 MCP와 관련 스킬을 한 번에 묶어 제공할 수 있다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://supabase.com/docs/guides/ai-tools/mcp" target="_blank" rel="noreferrer">Supabase MCP Server</a></li><li><a href="https://supabase.com/docs/guides/ai-tools" target="_blank" rel="noreferrer">Supabase AI Tools</a></li><li><a href="https://supabase.com/docs/guides/ai-tools/plugins" target="_blank" rel="noreferrer">Supabase Plugin for AI Coding Agents</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide code " id="slide-38" data-index="43" data-part="6부. 계획 모드로 웹앱 만들기">
+      <header><div class="kicker"><span></span>6부</div><h2 class="title">DB 변경도 계획 → 검토 → 적용 → 확인 순서다</h2></header>
+      <main class="slide-body"><pre data-lang="text"><code>자연어 요청
+   ↓
+변경 계획과 SQL 확인
+   ↓
+개발 DB에 적용
+   ↓
+테스트 쿼리
+   ↓
+“보안·성능 권고사항을 점검해줘”</code></pre></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">44 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>운영 DB가 아니라 교육용 개발 프로젝트에서 시연한다.</li><li>처음 연결할 때는 프로젝트 범위를 제한한다.</li><li>교육생에게 깊은 DB 보안 지식을 가르치기보다, 변경 후 검토를 요청하는 습관을 강조한다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://supabase.com/docs/guides/ai-tools/mcp" target="_blank" rel="noreferrer">Supabase MCP 보안 권고</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-39" data-index="44" data-part="6부. 계획 모드로 웹앱 만들기">
+      <header><div class="kicker"><span></span>6부</div><h2 class="title">우리가 만들 웹앱의 최소 구조</h2></header>
+      <main class="slide-body">
+      <div class="architecture">
+        <div class="browser-box">브라우저<small>검색 · 질문 · 관계 추가</small></div>
+        <b>↕</b>
+        <div class="web-box">Cloudflare Pages<small>웹 화면과 앱 로직</small></div>
+        <b>↕</b>
+        <div class="db-box">Supabase<small>pages · relations · sources</small></div>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">45 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>첫 버전에서는 기능을 다섯 개 이하로 제한한다.</li><li>“사용자 관계 추가”가 일반 RAG 데모와 구별되는 핵심 기능이다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-40" data-index="45" data-part="6부. 계획 모드로 웹앱 만들기">
+      <header><div class="kicker"><span></span>6부</div><h2 class="title long-title">첫 배포는 GitHub 없이 Cloudflare Pages에 직접 올린다</h2></header>
+      <main class="slide-body">
+      <div class="pipeline deployment">
+        <div><small>01</small><strong>완성 폴더</strong><span>빌드 결과 확인</span></div><b>→</b>
+        <div><small>02</small><strong>Wrangler</strong><span>Direct Upload</span></div><b>→</b>
+        <div class="accent"><small>03</small><strong>pages.dev</strong><span>브라우저 공유</span></div>
+      </div>
+      <pre class="deploy-command"><code>npx wrangler pages deploy &lt;폴더&gt;</code></pre></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">46 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Vercel과 비교하지 않는다.</li><li>참가자가 두 서비스에 가입하지 않도록 배포 경로를 하나로 통일한다.</li><li>GitHub를 배우기 전이므로 첫 배포는 로컬 폴더의 Direct Upload로 진행한다.</li><li>GitHub를 배운 뒤에는 Git 연동으로 자동 배포할 수 있다고 짧게 예고한다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://developers.cloudflare.com/pages/get-started/direct-upload/" target="_blank" rel="noreferrer">Cloudflare Pages Direct Upload</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide quote " id="slide-41" data-index="46" data-part="6부. 계획 모드로 웹앱 만들기">
+      <header><div class="kicker"><span></span>6부</div><h2 class="title">개발이 끝나면 마지막으로 이 문장을 입력한다</h2></header>
+      <main class="slide-body"><blockquote>“이 프로젝트의 보안 취약성을 검토해줘.  <br>중요도순으로 설명하고, 수정안을 제시해줘.”</blockquote>
+<p>수정 후 다시 묻는다</p>
+<blockquote>“남아 있는 취약성을 다시 검토해줘.”</blockquote></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계획 모드로 웹앱 만들기</span>
+        <span class="slide-count">47 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>별도 보안 강의로 깊게 들어가지 않는다.</li><li>LLM 검토가 안전을 보장하는 것은 아니지만, 아무 검토 없이 끝내는 습관은 피할 수 있다.</li><li>코드뿐 아니라 공개된 키, 과도한 권한, 개인정보 노출 여부도 함께 물어본다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide part-divider dark" id="part-07" data-index="47" data-part="7부. GitHub에서 축적하고 반복하기">
+
+      <main class="slide-body">
+      <div class="divider-copy">
+        <div class="divider-part">PART 07</div>
+        <h2 class="title divider-title">GitHub에 축적하고 원격으로 확인한다</h2>
+        <p>변경을 기록하고, 자리를 비워도 상태를 본다</p>
+        <div class="divider-rule"></div>
+        <span class="divider-number">07</span>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">GitHub에서 축적하고 반복하기</span>
+        <span class="slide-count">48 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>7부. GitHub에서 축적하고 반복하기의 시작을 분명히 알리는 전환 슬라이드입니다.</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-42" data-index="48" data-part="7부. GitHub에서 축적하고 반복하기">
+      <header><div class="kicker"><span></span>7부</div><h2 class="title">Git은 폴더의 타임머신이다</h2></header>
+      <main class="slide-body"><ul class="ticks"><li>무엇이 바뀌었는지 본다</li><li>중요한 순간을 저장한다</li><li>이전 상태로 돌아간다</li><li>실험을 두려워하지 않는다</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">GitHub에서 축적하고 반복하기</span>
+        <span class="slide-count">49 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Git 명령어 암기가 목적이 아니다.</li><li>Claude Code가 Git을 운전하더라도, 사용자는 변경점과 저장 시점을 이해해야 한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-43" data-index="49" data-part="7부. GitHub에서 축적하고 반복하기">
+      <header><div class="kicker"><span></span>7부</div><h2 class="title">GitHub는 저장소를 협업 공간으로 바꾼다</h2></header>
+      <main class="slide-body">
+      <div class="split-def">
+        <div><span>내 컴퓨터</span><strong>Git</strong><p>변경 이력 · 되돌리기 · 실험</p></div>
+        <div><span>함께 쓰는 공간</span><strong>GitHub</strong><p>공유 · Issue · PR · Review · 배포</p></div>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">GitHub에서 축적하고 반복하기</span>
+        <span class="slide-count">50 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>GitHub는 개발자 이력서만이 아니다.</li><li>문서, 데이터, 교육자료, 조사결과, 공개 도구의 이력과 논의를 함께 남길 수 있다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-44" data-index="50" data-part="7부. GitHub에서 축적하고 반복하기">
+      <header><div class="kicker"><span></span>7부</div><h2 class="title">별(star) 수만으로 좋은 저장소를 판단하지 않는다</h2></header>
+      <main class="slide-body"><p>좋은 저장소의 신호</p>
+<ul class="ticks"><li>최근에도 관리되는가</li><li>README로 시작할 수 있는가</li><li>라이선스가 분명한가</li><li>테스트와 자동검증이 있는가</li><li>Issue와 PR에 반응하는가</li><li>데이터 출처와 한계가 적혀 있는가</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">GitHub에서 축적하고 반복하기</span>
+        <span class="slide-count">51 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>별(star) 수는 인지도 신호이지 품질 보증서가 아니다.</li><li>활동이 활발해도 문서와 라이선스가 부실하면 업무에 도입하기 어렵다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-45" data-index="51" data-part="7부. GitHub에서 축적하고 반복하기">
+      <header><div class="kicker"><span></span>7부</div><h2 class="title">Issue는 문제를 기록하고, PR은 변경을 검토한다</h2></header>
+      <main class="slide-body"><p><strong>Issue</strong>  <br>해야 할 일, 오류, 아이디어, 질문</p>
+<p><strong>Pull Request</strong>  <br>실제 변경점, 검토, 승인, 반영</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">GitHub에서 축적하고 반복하기</span>
+        <span class="slide-count">52 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>AI가 수정 속도를 높이면 검토할 변경도 많아진다.</li><li>Issue와 PR은 작업을 느리게 만드는 절차가 아니라 판단 지점을 남기는 장치다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide loop-engineering " id="slide-46" data-index="52" data-part="7부. GitHub에서 축적하고 반복하기">
+      <header><div class="kicker"><span></span>7부</div><h2 class="title">승부는 자리에 있을 때보다 비웠을 때 난다</h2></header>
+      <main class="slide-body">
+      <div class="loop-layout">
+        <div class="handoff-list">
+          <span>자리를 비우기 전에</span>
+          <strong>완료 조건</strong><strong>자동 검증</strong><strong>중단 조건</strong><strong>승인 지점</strong>
+        </div>
+        <div class="loop-ring">
+          <span>목표</span><b>→</b><span>실행</span><b>→</b><span>검증</span><b>→</b><span>수정</span><b>↺</b>
+        </div>
+      </div>
+      <p class="big-conclusion">승부는 오래 돌리는 시간이 아니라 <strong>검증 가능한 루프</strong>에서 납니다.</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">GitHub에서 축적하고 반복하기</span>
+        <span class="slide-count">53 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>오래 실행시키는 것이 목적이 아니다.</li><li>완료 조건, 테스트, 중간 결과, 실패 시 중단 조건을 정해두는 것이 핵심이다.</li><li>사람이 해야 할 일은 모든 단계를 직접 수행하는 것에서 루프를 설계하고 승인하는 것으로 이동한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide remote-setup " id="slide-47" data-index="53" data-part="7부. GitHub에서 축적하고 반복하기">
+      <header><div class="kicker"><span></span>7부</div><h2 class="title long-title">Codex Remote는 데스크톱과 모바일을 QR로 연결한다</h2></header>
+      <main class="slide-body"><ol class="steps"><li><span>Mac·Windows의 ChatGPT 데스크톱 앱을 최신화한다  </span></li><li><span>호스트에서 <strong>Set up Remote</strong>를 열어 QR 코드를 띄운다  </span></li><li><span>ChatGPT 모바일 앱으로 스캔하고 계정·워크스페이스·MFA를 확인한다  </span></li><li><span><strong>Settings → Connections</strong>에서 연결 기기와 절전 설정을 확인한다</span></li></ol>
+<p><a href="https://learn.chatgpt.com/docs/remote-connections" target="_blank" rel="noreferrer">공식 안내 · Remote connections</a></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">GitHub에서 축적하고 반복하기</span>
+        <span class="slide-count">54 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>호스트와 휴대전화는 같은 ChatGPT 계정과 워크스페이스를 사용해야 한다.</li><li>호스트가 잠들거나 앱·네트워크가 끊기면 원격 연결도 멈춘다.</li><li>모바일에서는 새 작업 시작, 후속 지시, 승인, 진행·diff·터미널·스크린샷 확인이 가능하다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://learn.chatgpt.com/docs/remote-connections" target="_blank" rel="noreferrer">OpenAI Remote connections</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-48" data-index="54" data-part="7부. GitHub에서 축적하고 반복하기">
+      <header><div class="kicker"><span></span>7부</div><h2 class="title">“일단 만들어두고 운영은 나중에”가 가장 위험하다</h2></header>
+      <main class="slide-body">
+      <div class="ops-check">
+        <div class="done"><span>✓</span><strong>구축 완료</strong></div>
+        <div><span>—</span><strong>운영 담당</strong></div>
+        <div><span>—</span><strong>업데이트</strong></div>
+        <div><span>—</span><strong>문서</strong></div>
+      </div>
+      <p class="big-conclusion danger">결국 아무도 쓰지 않습니다.</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">GitHub에서 축적하고 반복하기</span>
+        <span class="slide-count">55 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>개인 프로젝트와 DPGA 축적으로 넘어가는 전환 슬라이드다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide part-divider dark" id="part-08" data-index="55" data-part="8부. 같은 KOICA 동료가 직접 만든 것들">
+
+      <main class="slide-body">
+      <div class="divider-copy">
+        <div class="divider-part">PART 08</div>
+        <h2 class="title divider-title">KOICA 동료의 실제 프로젝트</h2>
+        <p>작은 불편함이 도구와 공공자산으로 이어진다</p>
+        <div class="divider-rule"></div>
+        <span class="divider-number">08</span>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">같은 KOICA 동료가 직접 만든 것들</span>
+        <span class="slide-count">56 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>8부. 같은 KOICA 동료가 직접 만든 것들의 시작을 분명히 알리는 전환 슬라이드입니다.</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-49" data-index="56" data-part="8부. 같은 KOICA 동료가 직접 만든 것들">
+      <header><div class="kicker"><span></span>8부</div><h2 class="title">모두 작은 불편함과 개인적 호기심에서 시작했다</h2></header>
+      <main class="slide-body"><ul class="ticks"><li>개발협력 동향을 더 쉽게 찾고 싶었다</li><li>사업 위치를 지도에서 보고 싶었다</li><li>규정을 정확히 확인하고 싶었다</li><li>평가의 근거를 더 잘 남기고 싶었다</li><li>개발협력의 딜레마를 체험하게 하고 싶었다</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">같은 KOICA 동료가 직접 만든 것들</span>
+        <span class="slide-count">57 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>참가자에게 과제를 내주는 시간이 아니다.</li><li>같은 KOICA 동료가 개인적으로 만든 실사례이므로, 앞에서 배운 개념이 실제로 어디까지 이어질 수 있는지 보여준다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide project-links " id="slide-50" data-index="57" data-part="8부. 같은 KOICA 동료가 직접 만든 것들">
+      <header><div class="kicker"><span></span>8부</div><h2 class="title long-title">Explore와 Map: 흩어진 자료를 맥락과 공간으로 연결</h2></header>
+      <main class="slide-body"><div class="project-grid">
+          <div class="project-column">
+            <strong>DevCoop KG</strong>
+            <ul><li>국가별 동향 Wiki</li><li>기관·사업·주제 관계망</li><li>LLM 질의</li></ul>
+            <a href="https://devcoop-trends-wiki.pages.dev/" target="_blank" rel="noreferrer">웹에서 열기 ↗</a>
+          </div>
+          <div class="project-column">
+            <strong>ODA Map Lab</strong>
+            <ul><li>해외 위치 시각화</li><li>좌표와 정보 검토</li><li>사용자의 보정 제안</li></ul>
+            <a href="https://oda-map-lab.pages.dev/" target="_blank" rel="noreferrer">웹에서 열기 ↗</a>
+          </div></div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">같은 KOICA 동료가 직접 만든 것들</span>
+        <span class="slide-count">58 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Brain dumping → Wiki → 관계망 → 웹앱의 실제 발전 사례로 설명한다.</li><li>지도와 관계망 모두 원천 데이터와 보정 이력을 확인할 수 있어야 한다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://github.com/amnotyoung/github-devcoop-suite" target="_blank" rel="noreferrer">DevCoop Suite</a></li><li><a href="https://devcoop-trends-wiki.pages.dev/" target="_blank" rel="noreferrer">DevCoop KG</a></li><li><a href="https://oda-map-lab.pages.dev/" target="_blank" rel="noreferrer">ODA Map Lab</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide project-links " id="slide-51" data-index="58" data-part="8부. 같은 KOICA 동료가 직접 만든 것들">
+      <header><div class="kicker"><span></span>8부</div><h2 class="title long-title">Verify와 Evaluate: AI의 답에 근거와 판단 지점을 남긴다</h2></header>
+      <main class="slide-body"><div class="project-grid">
+          <div class="project-column">
+            <strong>KOICA Regulation MCP</strong>
+            <ul><li>규정 검색</li><li>조문 조회</li><li>인용 검증</li></ul>
+            <a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">GitHub에서 열기 ↗</a>
+          </div>
+          <div class="project-column">
+            <strong>DevEval Agents</strong>
+            <ul><li>평가 기준 적용</li><li>근거 게이트</li><li>사람의 최종 판단</li></ul>
+            <a href="https://github.com/amnotyoung/dev-eval-agents" target="_blank" rel="noreferrer">GitHub에서 열기 ↗</a>
+          </div></div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">같은 KOICA 동료가 직접 만든 것들</span>
+        <span class="slide-count">59 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>AI가 판단을 대신한다는 메시지가 아니다.</li><li>AI가 근거를 모으고 초안을 만들며, 사람에게 검토 지점을 명확히 보여주는 구조다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">KOICA Regulation MCP</a></li><li><a href="https://github.com/amnotyoung/dev-eval-agents" target="_blank" rel="noreferrer">DevEval Agents</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide project-links " id="slide-52" data-index="59" data-part="8부. 같은 KOICA 동료가 직접 만든 것들">
+      <header><div class="kicker"><span></span>8부</div><h2 class="title long-title">Learn과 Suite: 프로젝트를 체험과 생태계로 확장</h2></header>
+      <main class="slide-body"><div class="project-grid">
+          <div class="project-column">
+            <strong>Aid World</strong>
+            <ul><li>개발협력 현장의 선택과 딜레마</li><li>교육용 내러티브 게임</li></ul>
+            <a href="https://github.com/amnotyoung/idc-game" target="_blank" rel="noreferrer">GitHub에서 열기 ↗</a>
+          </div>
+          <div class="project-column">
+            <strong>DevCoop Suite</strong>
+            <ul><li>Explore · Map · Verify · Evaluate · Learn</li><li>독립 프로젝트를 하나의 탐색 체계로 연결</li></ul>
+            <a href="https://github.com/amnotyoung/github-devcoop-suite" target="_blank" rel="noreferrer">GitHub에서 열기 ↗</a>
+          </div></div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">같은 KOICA 동료가 직접 만든 것들</span>
+        <span class="slide-count">60 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>프로젝트를 하나의 거대한 앱으로 합치지 않았다.</li><li>각 프로젝트는 독립적으로 운영하면서 GitHub 카탈로그와 공통 메타데이터로 연결한다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://github.com/amnotyoung/idc-game" target="_blank" rel="noreferrer">Aid World</a></li><li><a href="https://github.com/amnotyoung/github-devcoop-suite" target="_blank" rel="noreferrer">DevCoop Suite</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="slide-53" data-index="60" data-part="8부. 같은 KOICA 동료가 직접 만든 것들">
+      <header><div class="kicker"><span></span>8부</div><h2 class="title">개인 프로젝트도 디지털공공재의 씨앗이 될 수 있다</h2></header>
+      <main class="slide-body"><p>공개했다고 바로 DPG는 아니다</p>
+<p>하지만 다음을 갖추기 시작할 수 있다</p>
+<ul class="ticks"><li>공개 라이선스</li><li>명확한 소유권</li><li>실행·운영 문서</li><li>표준과 이식성</li><li>데이터·개인정보 고려</li><li>지속적인 유지관리</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">같은 KOICA 동료가 직접 만든 것들</span>
+        <span class="slide-count">61 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>DPGA 등록을 쉽게 장담하지 않는다.</li><li>DPG Standard의 요구사항을 프로젝트를 건강하게 만드는 체크리스트로 먼저 사용한다.</li><li>DevCoop Suite는 각 프로젝트가 서로를 발견하고 재사용하게 만드는 축적 실험이다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://www.digitalpublicgoods.net/standard" target="_blank" rel="noreferrer">Digital Public Goods Standard</a></li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide part-divider dark" id="part-09" data-index="61" data-part="9부. 계속 따라가는 방법">
+
+      <main class="slide-body">
+      <div class="divider-copy">
+        <div class="divider-part">PART 09</div>
+        <h2 class="title divider-title">트렌드를 따라가는 최소 습관</h2>
+        <p>하루 5분, 실제 사용 기록을 읽고 남긴다</p>
+        <div class="divider-rule"></div>
+        <span class="divider-number">09</span>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계속 따라가는 방법</span>
+        <span class="slide-count">62 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><p>9부. 계속 따라가는 방법의 시작을 분명히 알리는 전환 슬라이드입니다.</p></div></aside>
+    </section>
+
+    <section class="slide threads-slide " id="slide-54" data-index="62" data-part="9부. 계속 따라가는 방법">
+      <header><div class="kicker"><span></span>9부</div><h2 class="title">트렌드는 뉴스보다 사용 장면에서 먼저 보인다</h2></header>
+      <main class="slide-body">
+      <div class="threads-grid">
+        <div><strong>찾을 주제</strong><ul><li>Claude Code</li><li>MCP</li><li>Agent Skills · Plugins</li><li>AI 에이전트 사용 기록</li></ul></div>
+        <div><strong>추천 계정</strong><ul class="account-list">
+          <li><a href="https://www.threads.net/@choi.openai" target="_blank" rel="noreferrer">@choi.openai</a></li>
+          <li><a href="https://www.threads.net/@chris_gomdori" target="_blank" rel="noreferrer">@chris_gomdori</a></li>
+          <li><a href="https://www.threads.net/@amnotyoung.k" target="_blank" rel="noreferrer">@amnotyoung.k</a></li>
+        </ul></div>
+      </div>
+      <p class="big-conclusion">원문 링크와 실패 기록이 있는 실제 사용기를 우선 읽습니다.</p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계속 따라가는 방법</span>
+        <span class="slide-count">63 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>추천 계정은 교육 시점의 출발점이며, 계정 활동 여부는 교육 직전에 다시 확인한다.</li><li>“실제로 사용해봤는가”, “실패와 한계를 적었는가”, “원문 링크가 있는가”를 기준으로 읽는다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-55" data-index="63" data-part="9부. 계속 따라가는 방법">
+      <header><div class="kicker"><span></span>9부</div><h2 class="title">하루 5분이면 충분하다</h2></header>
+      <main class="slide-body"><p>2분 — 피드에서 사용 사례를 찾는다  <br>2분 — 하나만 자세히 읽는다  <br>1분 — 내 업무에 적용할 생각을 기록한다</p>
+<p>좋은 생각이면  <br><strong>Wiki 링크 또는 GitHub Issue로 남긴다</strong></p></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계속 따라가는 방법</span>
+        <span class="slide-count">64 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>소비로 끝내지 않고 한 줄이라도 자기 시스템에 남기는 것이 중요하다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide statement " id="slide-56" data-index="64" data-part="9부. 계속 따라가는 방법">
+      <header><div class="kicker"><span></span>9부</div><h2 class="title">불편함을 텍스트로 바꾸는 순간부터 시작된다</h2></header>
+      <main class="slide-body">
+      <div class="closing">
+        <p>불편함을 <strong>텍스트</strong>로 바꾸고</p>
+        <p>반복을 <strong>Skill</strong>로 묶고</p>
+        <p>결과를 함께 쓰는 <strong>자산</strong>으로 축적합니다</p>
+        <div class="closing-mark">오늘 하나의 폴더에서 시작하세요.</div>
+      </div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">계속 따라가는 방법</span>
+        <span class="slide-count">65 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>일반적인 “감사합니다”로 끝내지 않는다.</li><li>참가자가 당장 할 수 있는 첫 행동을 묻는다.</li></ul>
+<p>  - 문서 하나를 Markdown으로 바꾸기<br>  - 반복 업무 하나를 스킬로 만들기<br>  - 개인 지식 링크 하나를 Wiki에 남기기</p>
+<p>---</p>
+<p># 부록</p></div></aside>
+    </section>
+
+    <section class="slide table " id="appendix-01" data-index="65" data-part="Appendix">
+      <header><div class="kicker"><span></span>부록 01</div><h2 class="title">Claude Code 기준 용어 지도</h2></header>
+      <main class="slide-body"><div class="table-wrap"><table><thead><tr><th>필요</th><th>Claude Code</th></tr></thead><tbody><tr><td>프로젝트 공통 지침</td><td><code>CLAUDE.md</code></td></tr><tr><td>외부 도구·데이터 연결</td><td>MCP</td></tr><tr><td>반복 업무 절차</td><td>Skill</td></tr><tr><td>설치 가능한 확장 묶음</td><td>Plugin</td></tr><tr><td>작업 계획</td><td>Plan mode</td></tr><tr><td>변경 이력</td><td>Git</td></tr><tr><td>협업과 공개</td><td>GitHub</td></tr></tbody></table></div></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Appendix</span>
+        <span class="slide-count">66 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>본 강의의 모든 실습은 이 용어를 기준으로 한다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide list " id="appendix-02" data-index="66" data-part="Appendix">
+      <header><div class="kicker"><span></span>부록 02</div><h2 class="title">Codex에서도 같은 원리가 적용된다</h2></header>
+      <main class="slide-body"><p>Claude Code와 Codex는 화면과 설치 방식이 다르지만</p>
+<ul class="ticks"><li>프로젝트 파일을 읽고 쓴다</li><li>MCP를 연결한다</li><li>스킬을 사용한다</li><li>Git과 GitHub를 다룬다</li><li>계획·실행·검증을 반복한다</li></ul></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Appendix</span>
+        <span class="slide-count">67 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>Codex 사용자는 개념을 다시 배울 필요가 없다는 정도로만 설명한다.</li><li>본 강의 중 병렬 설치 실습은 하지 않는다.</li></ul>
+<p>---</p></div></aside>
+    </section>
+
+    <section class="slide code " id="appendix-03" data-index="67" data-part="Appendix">
+      <header><div class="kicker"><span></span>부록 03</div><h2 class="title">라이브 시연용 핵심 프롬프트</h2></header>
+      <main class="slide-body"><pre data-lang="text"><code>이 폴더의 자료를 읽고 교육 안내문을 Markdown 파일로 만들어줘.
+
+이 문서를 kordoc으로 Markdown 변환하고,
+원본과 비교해 누락 가능성이 있는 부분을 알려줘.
+
+회의 노트와 첨부문서를 읽고 결정사항·담당자·기한을 정리해줘.
+관련 KOICA 규정과 외부 법령은 MCP로 조회해 근거를 붙여줘.
+
+이 Wiki에서 고립된 페이지, 깨진 링크, 출처 누락,
+중복 후보를 lint 보고서로 만들어줘.
+
+방금 수행한 Wiki 답변 절차를 재사용 가능한 Skill로 만들어줘.
+
+구현하지 말고 먼저 LLM Wiki 웹앱 구축 계획을 세워줘.
+
+Supabase의 현재 테이블 구조를 설명하고,
+Wiki 페이지와 관계를 저장할 스키마를 제안해줘.
+
+이 프로젝트의 보안 취약성을 검토해줘.
+중요도순으로 설명하고 수정안을 제시해줘.</code></pre></main>
+      <footer>
+        <span class="brand">KOICA 해외사무소 AI·데이터 활용</span>
+        <span class="part-name">Appendix</span>
+        <span class="slide-count">68 / 68</span>
+      </footer>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>참가자 배포용 치트시트로 별도 추출할 수 있다.</li></ul>
+<p>---</p></div></aside>
+    </section></div></div>
+<div class="notes-panel" id="notesPanel" aria-live="polite"></div>
+<div class="overview" id="overview" aria-label="슬라이드 목록"></div>
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const stage=document.getElementById('stage');
+  const notesPanel=document.getElementById('notesPanel');
+  const overview=document.getElementById('overview');
+  let current=Math.max(0,Math.min(slides.length-1,Number(location.hash.replace('#',''))-1||0));
+  function fit(){
+    const scale=Math.min(innerWidth/1280,innerHeight/720);
+    document.documentElement.style.setProperty('--scale',scale);
+  }
+  function show(index,{updateHash=true}={}){
+    current=Math.max(0,Math.min(slides.length-1,index));
+    slides.forEach((slide,i)=>{
+      slide.classList.toggle('active',i===current);
+      slide.style.setProperty('--progress',((i+1)/slides.length*100).toFixed(2));
+    });
+    if(updateHash) history.replaceState(null,'','#'+(current+1));
+    const note=slides[current].querySelector('aside.notes');
+    notesPanel.innerHTML=note?note.innerHTML:'';
+    const currentTitle=slides[current].querySelector('.title')?.textContent?.trim()||'KOICA AI·데이터 활용';
+    document.title=(current+1)+'/'+slides.length+' · '+currentTitle;
+  }
+  function toggleNotes(){notesPanel.classList.toggle('show')}
+  function toggleOverview(){
+    overview.classList.toggle('show');
+    if(!overview.childElementCount){
+      slides.forEach((slide,i)=>{
+        const button=document.createElement('button');
+        button.innerHTML='<small>'+(i+1)+' / '+slides.length+'</small>'+(slide.querySelector('.title')?.textContent?.trim()||'표지');
+        button.addEventListener('click',()=>{overview.classList.remove('show');show(i)});
+        overview.appendChild(button);
+      });
+    }
+  }
+  addEventListener('keydown',(event)=>{
+    if(event.key==='ArrowRight'||event.key==='PageDown'||event.key===' '){event.preventDefault();show(current+1)}
+    if(event.key==='ArrowLeft'||event.key==='PageUp'){event.preventDefault();show(current-1)}
+    if(event.key.toLowerCase()==='n')toggleNotes();
+    if(event.key.toLowerCase()==='o')toggleOverview();
+    if(event.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+    if(event.key==='Home')show(0);
+    if(event.key==='End')show(slides.length-1);
+    if(event.key==='Escape'){notesPanel.classList.remove('show');overview.classList.remove('show')}
+  });
+  addEventListener('resize',fit);
+  addEventListener('hashchange',()=>show(Number(location.hash.replace('#',''))-1,{updateHash:false}));
+  fit();show(current);
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.DS_Store
+**/.DS_Store
+
+# Local browser and visual-QA artifacts
+.playwright-cli/
+output/
+
+# Draft meme assets that are not used in the final deck
+assets/memes/drx-unbreakables.jpg
+assets/memes/epic-handshake.jpg
