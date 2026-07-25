@@ -7,6 +7,7 @@ on:
     paths:
       - koica-oos-ai-data-training.html
       - .github/workflows/deploy-pages.yml
+      - scripts/build-public-pages.mjs
   workflow_dispatch:
 
 permissions:
@@ -34,7 +35,7 @@ jobs:
       - name: Prepare public presentation
         run: |
           mkdir -p _site
-          cp koica-oos-ai-data-training.html _site/index.html
+          node scripts/build-public-pages.mjs koica-oos-ai-data-training.html _site/index.html
           touch _site/.nojekyll
 
       - name: Upload Pages artifact
