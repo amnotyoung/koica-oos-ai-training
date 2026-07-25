@@ -73,6 +73,11 @@ bash scripts/check-public-assets.sh
 
 `participant-kit/`은 개인정보나 실제 사업정보가 없는 가상 자료로 구성되어 있습니다. 참가자는 압축을 푼 뒤 `프로젝트/` 폴더를 Claude Code 또는 ChatGPT의 Codex에서 열어 실습합니다.
 
+참가자에게는 저장소 전체가 아니라 GitHub Release의 ZIP을 배포합니다.
+
+- [참가자 패키지 ZIP 다운로드](https://github.com/amnotyoung/koica-oos-ai-training/releases/download/participant-kit-2026.07.25/koica-ai-training-starter-2026-07-25.zip)
+- [SHA-256 체크섬](https://github.com/amnotyoung/koica-oos-ai-training/releases/download/participant-kit-2026.07.25/SHA256SUMS.txt)
+
 배포용 ZIP을 다시 만들려면 Python에 `reportlab`이 설치되어 있어야 하며, HWPX 생성·검증에는 `kordoc`을 사용합니다.
 
 ```bash
