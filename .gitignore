@@ -6,10 +6,12 @@
 .env.*
 !.env.example
 .local/
+__pycache__/
+*.pyc
 
 # Local browser and visual-QA artifacts
 .playwright-cli/
-output/
+/output/
 
 # Internal source material and instructor-only media
 artifacts/

@@ -18,6 +18,9 @@ KOICA 해외사무소 근무자를 대상으로 한 AI·데이터 활용 교육 
 | `assets/diagrams/` | 강의자 로컬 전용 참고 도식. 공개 저장소에서는 제외 |
 | `assets/video/` | 내부 시연 원본·최적화 MP4·포스터. 공개 저장소에서는 제외 |
 | `scripts/check-public-assets.sh` | 내부 자산이 Git에 추적되는지 검사하는 공개 전 점검 |
+| `participant-kit/` | 참가자 사전 배포용 안내·환경점검·가상 실습 프로젝트 |
+| `.participant-package-src/` | 참가자용 PDF·HWPX를 생성하는 Markdown 원본 |
+| `scripts/build-participant-package.py` | PDF·HWPX·ZIP과 체크섬을 생성하는 패키지 빌드 스크립트 |
 
 ## 빌드
 
@@ -65,3 +68,15 @@ py -m http.server 8000
 ```bash
 bash scripts/check-public-assets.sh
 ```
+
+## 참가자 사전 배포 패키지
+
+`participant-kit/`은 개인정보나 실제 사업정보가 없는 가상 자료로 구성되어 있습니다. 참가자는 압축을 푼 뒤 `프로젝트/` 폴더를 Claude Code 또는 ChatGPT의 Codex에서 열어 실습합니다.
+
+배포용 ZIP을 다시 만들려면 Python에 `reportlab`이 설치되어 있어야 하며, HWPX 생성·검증에는 `kordoc`을 사용합니다.
+
+```bash
+python3 scripts/build-participant-package.py
+```
+
+완성 ZIP과 SHA-256 체크섬은 `artifacts/`에 생성됩니다.
