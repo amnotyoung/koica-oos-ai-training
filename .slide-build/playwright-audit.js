@@ -27,6 +27,7 @@ async page => {
     await page.waitForTimeout(20);
 
     const result = await page.locator(".slide.active").evaluate(slide => {
+      const activeIndex = [...document.querySelectorAll(".slide")].indexOf(slide);
       const body = slide.querySelector(".slide-body");
       const title = slide.querySelector(".title");
       const images = [...slide.querySelectorAll("img")];
@@ -51,6 +52,7 @@ async page => {
         : 0;
 
       return {
+        activeIndex,
         id: slide.id,
         brokenImages,
         remoteImages,
@@ -60,6 +62,7 @@ async page => {
     });
 
     if (
+      result.activeIndex !== index ||
       result.brokenImages.length ||
       result.remoteImages.length ||
       result.overflow?.x ||

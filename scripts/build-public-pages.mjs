@@ -43,6 +43,11 @@ const unresolvedExcludedMedia =
 const retainedVideoCount = [
   ...html.matchAll(/<source\b[^>]*\bsrc="assets\/video\/[^"]+-demo\.mp4"/g),
 ].length;
+const directVideoLinkCount = [
+  ...html.matchAll(
+    /<a\b[^>]*\bclass="video-direct-link"[^>]*\bhref="assets\/video\/[^"]+-demo\.mp4"/g,
+  ),
+].length;
 
 if (markedShellCount !== fallbackShellCount) {
   throw new Error(
@@ -55,6 +60,11 @@ if (unresolvedExcludedMedia) {
 if (retainedVideoCount !== publicVideoShellCount) {
   throw new Error(
     `공개 영상 수가 맞지 않습니다: ${retainedVideoCount}/${publicVideoShellCount}`,
+  );
+}
+if (directVideoLinkCount !== publicVideoShellCount * 2) {
+  throw new Error(
+    `영상 직접 열기 링크 수가 맞지 않습니다: ${directVideoLinkCount}/${publicVideoShellCount * 2}`,
   );
 }
 

@@ -138,12 +138,13 @@ function localVideo({ src, poster, ariaLabel, caption, extraClass = "" }) {
           <source src="${src}" type="video/mp4">
         </video>
       </div>
-      <div class="asset-fallback" role="img" aria-label="${escapeHtml(ariaLabel)}">
+      <div class="asset-fallback" role="group" aria-label="${escapeHtml(ariaLabel)}">
         <span>▶</span>
-        <strong>내부 시연 영상</strong>
-        <small>공개 저장소에는 포함하지 않습니다.<br>강의 현장에서는 로컬 영상을 재생합니다.</small>
+        <strong>이 브라우저에서 재생할 수 없습니다</strong>
+        <small>브라우저 보안 정책이나 네트워크 설정에 따라<br>내장 재생이 차단될 수 있습니다.</small>
+        <a class="video-direct-link" href="${src}" target="_blank" rel="noreferrer">영상 파일 직접 열기 ↗</a>
       </div>
-      <figcaption>${caption}</figcaption>
+      <figcaption><span>${caption}</span><a class="video-direct-link" href="${src}" target="_blank" rel="noreferrer">영상 직접 열기 ↗</a></figcaption>
     </figure>`;
 }
 
@@ -1126,11 +1127,13 @@ const html = `<!DOCTYPE html>
   .compact-flow b{color:var(--cyan)}
   .demo-video-frame{margin:0;padding:10px 10px 12px;background:#0b1627;border:1px solid #213956;border-radius:16px;box-shadow:0 18px 42px #0b1f3728;overflow:hidden}
   .demo-video-frame video{display:block;width:100%;height:330px;object-fit:contain;border-radius:10px;background:#050b14}
-  .demo-video-frame figcaption{margin:9px 4px 0;color:#bcd0e7;font-size:13px;line-height:1.35;text-align:center;font-weight:700}
+  .demo-video-frame figcaption{margin:9px 4px 0;color:#bcd0e7;font-size:13px;line-height:1.35;text-align:left;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .demo-video-frame .video-direct-link{color:#dbeafe;text-decoration:underline;text-underline-offset:3px;white-space:nowrap;font-weight:850}
   .local-asset-primary{width:100%}
   .asset-fallback{display:none;height:330px;border-radius:10px;background:linear-gradient(145deg,#12233b,#0a1525);color:#d9e8f8;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;padding:32px}
   .asset-fallback>span{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:#2563eb;color:#fff;font-size:25px;font-weight:900}
   .asset-fallback>strong{font-size:23px;color:#fff!important}.asset-fallback>small{font-size:14px;line-height:1.45;color:#a9bfd8}
+  .asset-fallback>.video-direct-link{margin-top:4px}
   .local-asset-shell.asset-missing>.local-asset-primary{display:none}
   .local-asset-shell.asset-missing>.asset-fallback{display:flex}
   .big-conclusion{text-align:center!important;font-size:28px!important;color:#30445f!important}
@@ -1400,7 +1403,7 @@ const html = `<!DOCTYPE html>
   function indexFromHash(){
     const raw=decodeURIComponent(location.hash.replace(/^#/,''));
     if(!raw)return 0;
-    if(/^\d+$/.test(raw))return Math.max(0,Math.min(slides.length-1,Number(raw)-1));
+    if(/^\\d+$/.test(raw))return Math.max(0,Math.min(slides.length-1,Number(raw)-1));
     const byId=slides.findIndex(slide=>slide.id===raw);
     return byId>=0?byId:0;
   }
