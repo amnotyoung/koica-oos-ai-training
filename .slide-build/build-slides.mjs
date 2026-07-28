@@ -890,6 +890,7 @@ function specialContent(slide) {
       ],
       "slide-51": [
         ["KOICA Regulation MCP", ["규정 검색", "조문 조회", "인용 검증"], "https://github.com/amnotyoung/koica-reg-mcp", "GitHub에서 열기"],
+        ["그 나라 조달은 어떻게 할까?", ["44개 협력국 + KOICA", "입찰 · 거버넌스 · 사업형성", "조문 · 기한 · 보증 · 이의 대조"], "https://amnotyoung.github.io/overseas-procurement-100/index.html", "웹에서 열기"],
         ["DevEval Agents", ["평가 기준 적용", "근거 게이트", "사람의 최종 판단"], "https://github.com/amnotyoung/dev-eval-agents", "GitHub에서 열기"],
       ],
       "slide-52": [
@@ -897,7 +898,7 @@ function specialContent(slide) {
         ["DevCoop Suite", ["Explore · Map · Verify · Evaluate · Learn", "독립 프로젝트를 하나의 탐색 체계로 연결"], "https://github.com/amnotyoung/github-devcoop-suite", "GitHub에서 열기"],
       ],
     }[slide.id];
-    return `<div class="project-grid">${projects
+    return `<div class="project-grid${projects.length === 3 ? " three" : ""}">${projects
       .map(
         ([name, bullets, url, label]) => `
           <div class="project-column">
@@ -1344,9 +1345,15 @@ const html = `<!DOCTYPE html>
   .project-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
   .project-column{padding:29px 31px;border-radius:18px;background:#f4f8fc;border:1px solid var(--line);border-top:6px solid var(--blue)}
   .project-column:nth-child(2){border-top-color:var(--cyan)}
+  .project-column:nth-child(3){border-top-color:var(--amber)}
   .project-column>strong{font-size:27px;color:var(--ink)!important}
   .project-column ul{margin:18px 0 22px;padding-left:22px;color:#334963;font-size:18px;line-height:1.55}
   .project-column a{display:inline-block;padding:10px 14px;border-radius:9px;background:#e6efff;color:#1d4ed8;font-size:16px;font-weight:850;text-decoration:none}
+  .project-grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .project-grid.three .project-column{padding:23px 22px}
+  .project-grid.three .project-column>strong{display:block;font-size:22px;line-height:1.25}
+  .project-grid.three .project-column ul{margin:14px 0 18px;padding-left:19px;font-size:15.5px;line-height:1.5}
+  .project-grid.three .project-column a{padding:9px 12px;font-size:14px}
   .threads-grid{display:grid;grid-template-columns:.86fr 1.14fr;gap:22px}
   .threads-grid>div{padding:25px 28px;border-radius:18px;border:1px solid #b9e5ee}
   .threads-platform{background:#10223d;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}

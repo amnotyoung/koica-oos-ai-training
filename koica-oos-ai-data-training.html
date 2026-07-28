@@ -359,9 +359,15 @@
   .project-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
   .project-column{padding:29px 31px;border-radius:18px;background:#f4f8fc;border:1px solid var(--line);border-top:6px solid var(--blue)}
   .project-column:nth-child(2){border-top-color:var(--cyan)}
+  .project-column:nth-child(3){border-top-color:var(--amber)}
   .project-column>strong{font-size:27px;color:var(--ink)!important}
   .project-column ul{margin:18px 0 22px;padding-left:22px;color:#334963;font-size:18px;line-height:1.55}
   .project-column a{display:inline-block;padding:10px 14px;border-radius:9px;background:#e6efff;color:#1d4ed8;font-size:16px;font-weight:850;text-decoration:none}
+  .project-grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .project-grid.three .project-column{padding:23px 22px}
+  .project-grid.three .project-column>strong{display:block;font-size:22px;line-height:1.25}
+  .project-grid.three .project-column ul{margin:14px 0 18px;padding-left:19px;font-size:15.5px;line-height:1.5}
+  .project-grid.three .project-column a{padding:9px 12px;font-size:14px}
   .threads-grid{display:grid;grid-template-columns:.86fr 1.14fr;gap:22px}
   .threads-grid>div{padding:25px 28px;border-radius:18px;border:1px solid #b9e5ee}
   .threads-platform{background:#10223d;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
@@ -1699,12 +1705,17 @@
     </section>
 
     <section class="slide project-links " id="slide-51" data-index="60" data-part="8부. 같은 KOICA 동료가 직접 만든 것들">
-      <header><div class="kicker"><span></span>8부</div><h2 class="title long-title">Verify와 Evaluate: AI의 답에 근거와 판단 지점을 남긴다</h2></header>
-      <main class="slide-body"><div class="project-grid">
+      <header><div class="kicker"><span></span>8부</div><h2 class="title long-title">Verify와 Evaluate: 규정·조달·평가에 근거를 남긴다</h2></header>
+      <main class="slide-body"><div class="project-grid three">
           <div class="project-column">
             <strong>KOICA Regulation MCP</strong>
             <ul><li>규정 검색</li><li>조문 조회</li><li>인용 검증</li></ul>
             <a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">GitHub에서 열기 ↗</a>
+          </div>
+          <div class="project-column">
+            <strong>그 나라 조달은 어떻게 할까?</strong>
+            <ul><li>44개 협력국 + KOICA</li><li>입찰 · 거버넌스 · 사업형성</li><li>조문 · 기한 · 보증 · 이의 대조</li></ul>
+            <a href="https://amnotyoung.github.io/overseas-procurement-100/index.html" target="_blank" rel="noreferrer">웹에서 열기 ↗</a>
           </div>
           <div class="project-column">
             <strong>DevEval Agents</strong>
@@ -1716,7 +1727,7 @@
         <span class="part-name">같은 KOICA 동료가 직접 만든 것들</span>
         <span class="slide-count">61 / 66</span>
       </footer>
-      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>AI가 판단을 대신한다는 메시지가 아니다.</li><li>AI가 근거를 모으고 초안을 만들며, 사람에게 검토 지점을 명확히 보여주는 구조다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">KOICA Regulation MCP</a></li><li><a href="https://github.com/amnotyoung/dev-eval-agents" target="_blank" rel="noreferrer">DevEval Agents</a></li></ul>
+      <aside class="notes"><div class="note-copy"><ul class="ticks"><li>AI가 판단을 대신한다는 메시지가 아니다.</li><li>AI가 근거를 모으고 초안을 만들며, 사람에게 검토 지점을 명확히 보여주는 구조다.</li><li>“그 나라 조달은 어떻게 할까?”는 44개 협력국과 KOICA의 입찰·거버넌스·사업형성 절차를 자료집에서 원문 조문까지 추적할 수 있게 만든 공개 안내 사이트다.</li></ul></div><div class="note-sources"><h6>Sources</h6><ul class="ticks"><li><a href="https://github.com/amnotyoung/koica-reg-mcp" target="_blank" rel="noreferrer">KOICA Regulation MCP</a></li><li><a href="https://amnotyoung.github.io/overseas-procurement-100/index.html" target="_blank" rel="noreferrer">그 나라 조달은 어떻게 할까?</a></li><li><a href="https://github.com/amnotyoung/dev-eval-agents" target="_blank" rel="noreferrer">DevEval Agents</a></li></ul>
 <p>---</p></div></aside>
     </section>
 
