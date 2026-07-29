@@ -8,6 +8,7 @@ on:
       - koica-oos-ai-data-training.html
       - .github/workflows/deploy-pages.yml
       - scripts/build-public-pages.mjs
+      - scripts/export-presentation-pdf.cjs
       - assets/video/**
   workflow_dispatch:
 
@@ -40,6 +41,14 @@ jobs:
           mkdir -p _site/assets/video
           cp assets/video/*-demo.mp4 assets/video/*-poster.jpg _site/assets/video/
           touch _site/.nojekyll
+
+      - name: Install Chromium PDF renderer
+        run: |
+          npm install --no-save --package-lock=false playwright@1.56.1
+          npx playwright install --with-deps chromium
+
+      - name: Export presentation PDF
+        run: node scripts/export-presentation-pdf.cjs _site/index.html _site/koica-oos-ai-data-training.pdf
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4

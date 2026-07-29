@@ -391,12 +391,14 @@
   .notes-panel.show{display:block}.notes-panel p{margin:0 0 8px}.notes-panel ul{margin:7px 0 0;padding-left:22px}.notes-panel a{color:#78d9ff}.note-sources{margin-top:13px;padding-top:12px;border-top:1px solid #28415f}.note-sources h6{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#78d9ff;margin:0 0 8px}
   .controls{position:fixed;right:16px;top:13px;z-index:40;display:flex;gap:8px;color:#8ea5c2;font-size:12px;align-items:center}
   .controls kbd{border:1px solid #334b69;background:#172940;color:#dbe8f7;border-radius:6px;padding:3px 7px;font:700 11px var(--sans)}
+  .pdf-download{padding:5px 9px;border:1px solid #93c5fd;border-radius:7px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:850;text-decoration:none}
+  .pdf-download:hover{background:#dbeafe}
   .overview{position:fixed;inset:0;z-index:60;display:none;background:#050b14ed;padding:28px;overflow:auto}
   .overview.show{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:14px}
   .overview button{appearance:none;text-align:left;border:1px solid #2b415d;background:#0d1b2d;color:#dce8f7;border-radius:12px;padding:14px;min-height:110px;cursor:pointer;font:700 14px/1.4 var(--sans)}
   .overview button:hover{border-color:#52c7ff;background:#132842}.overview button small{display:block;color:#6f8bae;margin-bottom:7px}
   .slide:not(.active){display:none}
-  @media(max-width:900px){.controls{display:none}}
+  @media(max-width:900px){.controls>span{display:none}}
   @media print{
     @page{size:1280px 720px;margin:0}
     body{overflow:visible;background:#fff}.deck{position:static;background:#fff}.stage{position:static;transform:none!important;width:1280px;height:auto;box-shadow:none;border-radius:0}
@@ -406,7 +408,7 @@
 </style>
 </head>
 <body>
-<div class="controls"><span>이동 <kbd>←</kbd><kbd>→</kbd></span><span>노트 <kbd>N</kbd></span><span>목록 <kbd>O</kbd></span><span>전체화면 <kbd>F</kbd></span></div>
+<div class="controls"><a class="pdf-download" href="koica-oos-ai-data-training.pdf" download>PDF 다운로드 ↓</a><span>이동 <kbd>←</kbd><kbd>→</kbd></span><span>노트 <kbd>N</kbd></span><span>목록 <kbd>O</kbd></span><span>전체화면 <kbd>F</kbd></span></div>
 <div class="deck"><div class="stage" id="stage">
     <section class="slide cover dark" id="slide-01" data-index="0" data-part="1부. Claude Code에서 시작하기">
 
