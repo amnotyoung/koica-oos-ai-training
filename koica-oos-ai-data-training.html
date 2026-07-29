@@ -389,17 +389,23 @@
   aside.notes{display:none}
   .notes-panel{position:fixed;z-index:50;left:0;right:0;bottom:0;max-height:44vh;overflow:auto;background:#071221f5;color:#dce8f7;border-top:3px solid var(--cyan);padding:20px 30px;font-size:15px;line-height:1.6;display:none;backdrop-filter:blur(5px)}
   .notes-panel.show{display:block}.notes-panel p{margin:0 0 8px}.notes-panel ul{margin:7px 0 0;padding-left:22px}.notes-panel a{color:#78d9ff}.note-sources{margin-top:13px;padding-top:12px;border-top:1px solid #28415f}.note-sources h6{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#78d9ff;margin:0 0 8px}
-  .controls{position:fixed;right:16px;top:13px;z-index:40;display:flex;gap:8px;color:#8ea5c2;font-size:12px;align-items:center}
+  .controls{position:fixed;right:16px;top:13px;z-index:70;display:flex;gap:8px;color:#8ea5c2;font-size:12px;align-items:center}
   .controls kbd{border:1px solid #334b69;background:#172940;color:#dbe8f7;border-radius:6px;padding:3px 7px;font:700 11px var(--sans)}
   .pdf-download{padding:5px 9px;border:1px solid #93c5fd;border-radius:7px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:850;text-decoration:none}
   .pdf-download:hover{background:#dbeafe}
+  .overview-toggle{height:28px;padding:0 10px;border:1px solid #3d5878;border-radius:7px;background:#172940;color:#dbe8f7;font:850 12px/1 var(--sans);cursor:pointer}
+  .overview-toggle[aria-expanded="true"]{border-color:#67d9ff;background:#163653;color:#8fe6ff}
   .mobile-step{display:none;width:32px;height:28px;border:1px solid #334b69;border-radius:7px;background:#172940;color:#dbe8f7;font:850 16px/1 var(--sans);place-items:center}
-  .overview{position:fixed;inset:0;z-index:60;display:none;background:#050b14ed;padding:28px;overflow:auto}
+  .overview{position:fixed;inset:0;z-index:60;display:none;background:#050b14ed;padding:58px 28px 28px;overflow:auto}
   .overview.show{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:14px}
   .overview button{appearance:none;text-align:left;border:1px solid #2b415d;background:#0d1b2d;color:#dce8f7;border-radius:12px;padding:14px;min-height:110px;cursor:pointer;font:700 14px/1.4 var(--sans)}
   .overview button:hover{border-color:#52c7ff;background:#132842}.overview button small{display:block;color:#6f8bae;margin-bottom:7px}
   .slide:not(.active){display:none}
-  @media(max-width:900px){.controls>span{display:none}.mobile-step{display:grid}}
+  @media(max-width:900px){
+    .controls>span{display:none}.mobile-step{display:grid}
+    .overview.show{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:58px 14px 14px}
+    .overview button{min-height:82px;padding:10px;font-size:12px}
+  }
   @media print{
     @page{size:1280px 720px;margin:0}
     body{overflow:visible;background:#fff}.deck{position:static;background:#fff}.stage{position:static;transform:none!important;width:1280px;height:auto;box-shadow:none;border-radius:0}
@@ -409,7 +415,7 @@
 </style>
 </head>
 <body>
-<div class="controls"><a class="pdf-download" href="koica-oos-ai-data-training.pdf" download>PDF 다운로드 ↓</a><button class="mobile-step" type="button" data-step="-1" aria-label="이전 슬라이드">←</button><button class="mobile-step" type="button" data-step="1" aria-label="다음 슬라이드">→</button><span>이동 <kbd>←</kbd><kbd>→</kbd></span><span>노트 <kbd>N</kbd></span><span>목록 <kbd>O</kbd></span><span>전체화면 <kbd>F</kbd></span></div>
+<div class="controls"><a class="pdf-download" href="koica-oos-ai-data-training.pdf" download>PDF 다운로드 ↓</a><button class="overview-toggle" id="overviewToggle" type="button" aria-expanded="false" aria-controls="overview">전체보기</button><button class="mobile-step" type="button" data-step="-1" aria-label="이전 슬라이드">←</button><button class="mobile-step" type="button" data-step="1" aria-label="다음 슬라이드">→</button><span>이동 <kbd>←</kbd><kbd>→</kbd></span><span>노트 <kbd>N</kbd></span><span>목록 <kbd>O</kbd></span><span>전체화면 <kbd>F</kbd></span></div>
 <div class="deck"><div class="stage" id="stage">
     <section class="slide cover dark" id="slide-01" data-index="0" data-part="1부. Claude Code에서 시작하기">
 
@@ -1843,6 +1849,7 @@
   const stage=document.getElementById('stage');
   const notesPanel=document.getElementById('notesPanel');
   const overview=document.getElementById('overview');
+  const overviewToggle=document.getElementById('overviewToggle');
   const markAssetMissing=(asset)=>asset.closest('.local-asset-shell')?.classList.add('asset-missing');
   document.querySelectorAll('[data-local-asset]').forEach(asset=>{
     asset.addEventListener('error',()=>markAssetMissing(asset));
@@ -1878,17 +1885,24 @@
     document.title=(current+1)+'/'+slides.length+' · '+currentTitle;
   }
   function toggleNotes(){notesPanel.classList.toggle('show')}
+  function closeOverview(){
+    overview.classList.remove('show');
+    overviewToggle.setAttribute('aria-expanded','false');
+  }
   function toggleOverview(){
-    overview.classList.toggle('show');
-    if(!overview.childElementCount){
+    const willShow=!overview.classList.contains('show');
+    overview.classList.toggle('show',willShow);
+    overviewToggle.setAttribute('aria-expanded',String(willShow));
+    if(willShow&&!overview.childElementCount){
       slides.forEach((slide,i)=>{
         const button=document.createElement('button');
         button.innerHTML='<small>'+(i+1)+' / '+slides.length+'</small>'+(slide.querySelector('.title')?.textContent?.trim()||'표지');
-        button.addEventListener('click',()=>{overview.classList.remove('show');show(i)});
+        button.addEventListener('click',()=>{closeOverview();show(i)});
         overview.appendChild(button);
       });
     }
   }
+  overviewToggle.addEventListener('click',toggleOverview);
   document.querySelectorAll('[data-step]').forEach(button=>{
     button.addEventListener('click',()=>show(current+Number(button.dataset.step)));
   });
@@ -1921,7 +1935,7 @@
     if(event.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
     if(event.key==='Home')show(0);
     if(event.key==='End')show(slides.length-1);
-    if(event.key==='Escape'){notesPanel.classList.remove('show');overview.classList.remove('show')}
+    if(event.key==='Escape'){notesPanel.classList.remove('show');closeOverview()}
   });
   addEventListener('resize',fit);
   addEventListener('hashchange',()=>show(indexFromHash(),{updateHash:false}));
