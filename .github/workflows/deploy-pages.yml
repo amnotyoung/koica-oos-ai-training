@@ -11,6 +11,10 @@ on:
       - scripts/export-presentation-pdf.cjs
       - assets/video/**
       - assets/diagrams/document-parsing-structure.webp
+      - assets/diagrams/vector-vs-graph-rag.png
+      - assets/diagrams/git-history-branches.png
+      - assets/memes/skill-plugin-bulls.webp
+      - assets/memes/bike-fall.jpg
   workflow_dispatch:
 
 permissions:
@@ -42,7 +46,9 @@ jobs:
           mkdir -p _site/assets/video
           cp assets/video/*-demo.mp4 assets/video/*-poster.jpg _site/assets/video/
           mkdir -p _site/assets/diagrams
-          cp assets/diagrams/document-parsing-structure.webp _site/assets/diagrams/
+          cp assets/diagrams/document-parsing-structure.webp assets/diagrams/vector-vs-graph-rag.png assets/diagrams/git-history-branches.png _site/assets/diagrams/
+          mkdir -p _site/assets/memes
+          cp assets/memes/skill-plugin-bulls.webp assets/memes/bike-fall.jpg _site/assets/memes/
           touch _site/.nojekyll
 
       - name: Install Chromium PDF renderer

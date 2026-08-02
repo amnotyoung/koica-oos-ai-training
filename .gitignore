@@ -17,6 +17,8 @@ __pycache__/
 artifacts/
 assets/diagrams/*
 !assets/diagrams/document-parsing-structure.webp
+!assets/diagrams/vector-vs-graph-rag.png
+!assets/diagrams/git-history-branches.png
 
 # Publish only web-optimized demos and posters; keep raw recordings local
 assets/video/*
@@ -26,8 +28,6 @@ assets/video/*
 # Local-only meme assets: visible in the instructor deck, omitted from the public repo
 /meme-plan.json
 /밈-삽입-계획.md
-assets/memes/bike-fall.jpg
-assets/memes/skill-plugin-bulls.webp
 assets/memes/confused-travolta.jpg
 assets/memes/Z-SeduIo6bSvhtV7ZZGZPTvCtmbGscj1t_tR5e8EiGpHGAzq-2GVl9pAFD-qRzTx1TsXd09rhHrn6hRIjK1GTA.webp
 

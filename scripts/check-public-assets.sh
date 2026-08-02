@@ -6,15 +6,14 @@ cd "$repo_root"
 
 blocked_patterns=(
   '^artifacts/'
-  '^assets/memes/bike-fall\.jpg$'
-  '^assets/memes/skill-plugin-bulls\.webp$'
   '^assets/memes/confused-travolta\.jpg$'
   '^assets/memes/Z-SeduIo6bSvhtV7ZZGZPTvCtmbGscj1t_tR5e8EiGpHGAzq-2GVl9pAFD-qRzTx1TsXd09rhHrn6hRIjK1GTA\.webp$'
   '(^|/)\.env($|\.)'
   '\.mov$'
 )
 
-allowed_diagram_pattern='^assets/diagrams/document-parsing-structure\.webp$'
+allowed_diagram_pattern='^assets/diagrams/(document-parsing-structure\.webp|vector-vs-graph-rag\.png|git-history-branches\.png)$'
+allowed_meme_pattern='^assets/memes/(skill-plugin-bulls\.webp|bike-fall\.jpg)$'
 
 tracked="$(git ls-files)"
 failed=0
@@ -34,6 +33,16 @@ if [[ -n "$tracked_diagrams" ]]; then
   if [[ -n "$unexpected_diagrams" ]]; then
     printf '공개 허용 목록에 없는 도식 자산이 Git에 추적되고 있습니다:\n' >&2
     printf '%s\n' "$unexpected_diagrams" >&2
+    failed=1
+  fi
+fi
+
+tracked_memes="$(printf '%s\n' "$tracked" | grep -E '^assets/memes/' || true)"
+if [[ -n "$tracked_memes" ]]; then
+  unexpected_memes="$(printf '%s\n' "$tracked_memes" | grep -Ev "$allowed_meme_pattern" || true)"
+  if [[ -n "$unexpected_memes" ]]; then
+    printf '공개 허용 목록에 없는 밈 자산이 Git에 추적되고 있습니다:\n' >&2
+    printf '%s\n' "$unexpected_memes" >&2
     failed=1
   fi
 fi

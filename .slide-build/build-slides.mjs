@@ -644,7 +644,7 @@ function specialContent(slide) {
   if (slide.id === "slide-22") {
     return `
       ${localImageFigure({
-        className: "graphrag-figure",
+        className: "graphrag-figure public-asset-shell",
         assetSource: "https://machinelearningmastery.com/wp-content/uploads/2026/03/mlm-agentic-memory-vector-vs-graph.png",
         src: "assets/diagrams/vector-vs-graph-rag.png",
         alt: "Vector Memory는 의미 유사도로 문서를 찾고 Graph Memory는 노드와 관계를 따라 여러 단계를 추론한다는 비교 도식",
@@ -703,7 +703,7 @@ function specialContent(slide) {
           <div><small>방법</small><strong>Skill</strong><span>Claude가 일하는 절차</span></div>
           <div><small>전달</small><strong>Plugin</strong><span>그 능력을 묶어 설치·공유</span></div>
         </div>
-        <figure class="slide-meme local-asset-shell handshake-meme" data-meme-plan-id="meme-skill-plugin" data-meme-role="analogy" data-meme-template="User-provided collaboration image" data-meme-source="assets/memes/skill-plugin-bulls.webp" data-meme-origin="user-provided">
+        <figure class="slide-meme local-asset-shell handshake-meme public-asset-shell" data-meme-plan-id="meme-skill-plugin" data-meme-role="analogy" data-meme-template="User-provided collaboration image" data-meme-source="assets/memes/skill-plugin-bulls.webp" data-meme-origin="user-provided">
           <div class="local-asset-primary">
             <div class="handshake-frame">
               <img data-local-asset src="assets/memes/skill-plugin-bulls.webp" alt="붉은 농구 유니폼을 입은 두 선수가 손을 맞대며 협력하는 그림">
@@ -726,7 +726,7 @@ function specialContent(slide) {
 
   if (slide.id === "harness-anti-pattern") {
     return `
-      <figure class="slide-meme local-asset-shell bike-fall-meme" data-meme-plan-id="meme-loop-self-sabotage" data-meme-role="analogy" data-meme-template="Baton Roue / Bike Fall" data-meme-source="https://copart.canalblog.com/archives/2011/01/23/20199071.html" data-meme-origin="searched">
+      <figure class="slide-meme local-asset-shell bike-fall-meme public-asset-shell" data-meme-plan-id="meme-loop-self-sabotage" data-meme-role="analogy" data-meme-template="Baton Roue / Bike Fall" data-meme-source="https://copart.canalblog.com/archives/2011/01/23/20199071.html" data-meme-origin="searched">
         <div class="local-asset-primary">
           <div class="bike-fall-grid">
             <img data-local-asset src="assets/memes/bike-fall.jpg" alt="자전거를 타던 사람이 막대를 앞바퀴에 넣어 스스로 넘어지는 세 장면의 만화">
@@ -827,7 +827,7 @@ function specialContent(slide) {
           <li>실험을 두려워하지 않는다</li>
         </ul>
         ${localImageFigure({
-          className: "git-history-figure",
+          className: "git-history-figure public-asset-shell",
           assetSource: "https://cdn.hashnode.com/res/hashnode/image/upload/v1612566431394/s3UUME2Hq.png",
           src: "assets/diagrams/git-history-branches.png",
           alt: "여러 브랜치와 커밋, 릴리스 태그가 갈라지고 합쳐지는 Git 이력 그래프",

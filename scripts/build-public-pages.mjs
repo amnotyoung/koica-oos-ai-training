@@ -8,6 +8,13 @@ const [inputArg = "koica-oos-ai-data-training.html", outputArg = "_site/index.ht
 const inputPath = resolve(inputArg);
 const outputPath = resolve(outputArg);
 const source = readFileSync(inputPath, "utf8");
+const publicImageSources = new Set([
+  "assets/diagrams/document-parsing-structure.webp",
+  "assets/diagrams/vector-vs-graph-rag.png",
+  "assets/diagrams/git-history-branches.png",
+  "assets/memes/skill-plugin-bulls.webp",
+  "assets/memes/bike-fall.jpg",
+]);
 
 const shellPattern = /class="([^"]*\blocal-asset-shell\b[^"]*)"/g;
 const shellCount = [...source.matchAll(shellPattern)].length;
@@ -34,7 +41,8 @@ let html = source.replace(shellPattern, (_match, classes) => {
 });
 
 html = html.replace(/<img\b[^>]*\bdata-local-asset\b[^>]*>/g, (tag) => {
-  if (/\bsrc="assets\/diagrams\/document-parsing-structure\.webp"/.test(tag)) return tag;
+  const src = tag.match(/\bsrc="([^"]+)"/)?.[1];
+  if (src && publicImageSources.has(src)) return tag;
   return tag.replace(/\s+src="[^"]*"/, "");
 });
 html = html.replace("<html lang=\"ko\">", "<html lang=\"ko\" data-public-build=\"github-pages\">");
@@ -42,8 +50,9 @@ html = html.replace("<html lang=\"ko\">", "<html lang=\"ko\" data-public-build=\
 const markedShellCount = [
   ...html.matchAll(/class="[^"]*\blocal-asset-shell\b[^"]*\basset-missing\b[^"]*"/g),
 ].length;
-const unresolvedExcludedMedia =
-  /<img\b[^>]*\bsrc="assets\/(?:diagrams\/(?!document-parsing-structure\.webp)|memes\/)/.test(html);
+const unresolvedExcludedMedia = [
+  ...html.matchAll(/<img\b[^>]*\bsrc="(assets\/(?:diagrams|memes)\/[^\"]+)"/g),
+].some((match) => !publicImageSources.has(match[1]));
 const retainedVideoCount = [
   ...html.matchAll(/<source\b[^>]*\bsrc="assets\/video\/[^"]+-demo\.mp4"/g),
 ].length;
