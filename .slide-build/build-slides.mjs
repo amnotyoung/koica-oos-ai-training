@@ -557,7 +557,7 @@ function specialContent(slide) {
             <li>폴더를 등록하면 문서 본문을 자동으로 인덱싱</li>
             <li>HWP · PDF · Office · 이미지까지 검색</li>
             <li>파일 이름을 몰라도 내용으로 찾기</li>
-            <li>AI 기능을 끄면 로컬 검색 도구로 사용</li>
+            <li>온디바이스 AI로 연결하면 완전 로컬 검색 도구로 사용</li>
           </ul>
           <a href="https://github.com/chrisryugj/Docufinder" target="_blank" rel="noreferrer">chrisryugj/Docufinder ↗</a>
         </div>
