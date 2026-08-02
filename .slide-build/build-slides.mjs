@@ -885,8 +885,8 @@ function specialContent(slide) {
   if (["slide-50", "slide-51", "slide-52"].includes(slide.id)) {
     const projects = {
       "slide-50": [
-        ["DevCoop KG", ["국가별 동향 Wiki", "기관·사업·주제 관계망", "LLM 질의"], "https://devcoop-trends-wiki.pages.dev/", "웹에서 열기"],
-        ["ODA Map Lab", ["해외 위치 시각화", "좌표와 정보 검토", "사용자의 보정 제안"], "https://oda-map-lab.pages.dev/", "웹에서 열기"],
+        ["DevCoop KG", ["국가별 동향 Wiki", "기관·사업·주제 관계망", "LLM 질의"], "https://devcoop-trends-wiki.pages.dev/", "웹에서 열기", "https://devcoop-trends-wiki.pages.dev"],
+        ["ODA Map Lab", ["해외 위치 시각화", "좌표와 정보 검토", "사용자의 보정 제안"], "https://oda-map-lab.pages.dev/", "웹에서 열기", "https://oda-map-lab.pages.dev/mcp"],
       ],
       "slide-51": [
         ["KOICA Regulation MCP", ["규정 검색", "조문 조회", "인용 검증"], "https://github.com/amnotyoung/koica-reg-mcp", "GitHub에서 열기"],
@@ -895,16 +895,17 @@ function specialContent(slide) {
       ],
       "slide-52": [
         ["Aid World", ["개발협력 현장의 선택과 딜레마", "교육용 내러티브 게임"], "https://github.com/amnotyoung/idc-game", "GitHub에서 열기"],
-        ["DevCoop Suite", ["Explore · Map · Verify · Evaluate · Learn", "독립 프로젝트를 하나의 탐색 체계로 연결"], "https://github.com/amnotyoung/github-devcoop-suite", "GitHub에서 열기"],
+        ["ODA Intelligence Plugin", ["Skill 3개 + 커넥터 1개로 설치", "네 백엔드를 읽기 전용 도구 30개로", "Claude · Codex · ChatGPT"], "https://github.com/amnotyoung/oda-intelligence-plugin", "GitHub에서 열기", "https://oda-mcp.fly.dev/oda-intelligence/v2/mcp"],
       ],
     }[slide.id];
     return `<div class="project-grid${projects.length === 3 ? " three" : ""}">${projects
       .map(
-        ([name, bullets, url, label]) => `
+        ([name, bullets, url, label, mcp]) => `
           <div class="project-column">
             <strong>${escapeHtml(name)}</strong>
             <ul>${bullets.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
-            <a href="${url}" target="_blank" rel="noreferrer">${escapeHtml(label)} ↗</a>
+            <a href="${url}" target="_blank" rel="noreferrer">${escapeHtml(label)} ↗</a>${mcp ? `
+            <p class="project-mcp"><span>MCP 서버</span><a href="${mcp}" target="_blank" rel="noreferrer">${escapeHtml(mcp)}</a></p>` : ""}
           </div>`
       )
       .join("")}</div>`;
@@ -1003,7 +1004,7 @@ const html = `<!DOCTYPE html>
   *{box-sizing:border-box}
   html,body{width:100%;height:100%;margin:0}
   body{overflow:hidden;background:#050b14;color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
-  .deck{position:fixed;inset:0;background:radial-gradient(circle at 50% 20%,#13233d 0,#050b14 68%)}
+  .deck{position:fixed;inset:0;touch-action:pan-y;background:radial-gradient(circle at 50% 20%,#13233d 0,#050b14 68%)}
   .stage{position:absolute;left:50%;top:50%;width:1280px;height:720px;transform:translate(-50%,-50%) scale(var(--scale));transform-origin:center;border-radius:14px;overflow:hidden;box-shadow:0 36px 110px #000a;background:var(--paper)}
   .slide{position:absolute;inset:0;display:none;flex-direction:column;padding:54px 92px 62px;background:var(--paper)}
   .slide.active{display:flex;animation:enter .28s ease both}
@@ -1349,6 +1350,9 @@ const html = `<!DOCTYPE html>
   .project-column>strong{font-size:27px;color:var(--ink)!important}
   .project-column ul{margin:18px 0 22px;padding-left:22px;color:#334963;font-size:18px;line-height:1.55}
   .project-column a{display:inline-block;padding:10px 14px;border-radius:9px;background:#e6efff;color:#1d4ed8;font-size:16px;font-weight:850;text-decoration:none}
+  .project-mcp{margin:17px 0 0;padding-top:14px;border-top:1px solid #cfdeed}
+  .project-mcp span{display:block;margin-bottom:5px;color:#526780;font-size:12px;font-weight:900;letter-spacing:.04em}
+  .project-column .project-mcp a{display:block;padding:0;border-radius:0;background:none;color:#17649a;font:750 13px/1.35 var(--mono);overflow-wrap:anywhere}
   .project-grid.three{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
   .project-grid.three .project-column{padding:23px 22px}
   .project-grid.three .project-column>strong{display:block;font-size:22px;line-height:1.25}
@@ -1374,12 +1378,17 @@ const html = `<!DOCTYPE html>
   .notes-panel.show{display:block}.notes-panel p{margin:0 0 8px}.notes-panel ul{margin:7px 0 0;padding-left:22px}.notes-panel a{color:#78d9ff}.note-sources{margin-top:13px;padding-top:12px;border-top:1px solid #28415f}.note-sources h6{font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:#78d9ff;margin:0 0 8px}
   .controls{position:fixed;right:16px;top:13px;z-index:40;display:flex;gap:8px;color:#8ea5c2;font-size:12px;align-items:center}
   .controls kbd{border:1px solid #334b69;background:#172940;color:#dbe8f7;border-radius:6px;padding:3px 7px;font:700 11px var(--sans)}
+  .pdf-download{padding:5px 9px;border:1px solid #93c5fd;border-radius:7px;background:#eff6ff;color:#1d4ed8;font-size:12px;font-weight:850;text-decoration:none}
+  .pdf-download:hover{background:#dbeafe}
+  .fullscreen-toggle{height:28px;padding:0 10px;border:1px solid #3d5878;border-radius:7px;background:#172940;color:#dbe8f7;font:850 12px/1 var(--sans);cursor:pointer}
+  .fullscreen-toggle[aria-pressed="true"]{border-color:#67d9ff;background:#163653;color:#8fe6ff}
+  .mobile-step{display:none;width:32px;height:28px;border:1px solid #334b69;border-radius:7px;background:#172940;color:#dbe8f7;font:850 16px/1 var(--sans);place-items:center}
   .overview{position:fixed;inset:0;z-index:60;display:none;background:#050b14ed;padding:28px;overflow:auto}
   .overview.show{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:14px}
   .overview button{appearance:none;text-align:left;border:1px solid #2b415d;background:#0d1b2d;color:#dce8f7;border-radius:12px;padding:14px;min-height:110px;cursor:pointer;font:700 14px/1.4 var(--sans)}
   .overview button:hover{border-color:#52c7ff;background:#132842}.overview button small{display:block;color:#6f8bae;margin-bottom:7px}
   .slide:not(.active){display:none}
-  @media(max-width:900px){.controls{display:none}}
+  @media(max-width:900px){.controls>span{display:none}.mobile-step{display:grid}}
   @media print{
     @page{size:1280px 720px;margin:0}
     body{overflow:visible;background:#fff}.deck{position:static;background:#fff}.stage{position:static;transform:none!important;width:1280px;height:auto;box-shadow:none;border-radius:0}
@@ -1389,7 +1398,7 @@ const html = `<!DOCTYPE html>
 </style>
 </head>
 <body>
-<div class="controls"><span>이동 <kbd>←</kbd><kbd>→</kbd></span><span>노트 <kbd>N</kbd></span><span>목록 <kbd>O</kbd></span><span>전체화면 <kbd>F</kbd></span></div>
+<div class="controls"><a class="pdf-download" href="koica-oos-ai-data-training.pdf" download>PDF 다운로드 ↓</a><button class="fullscreen-toggle" id="fullscreenToggle" type="button" aria-pressed="false">전체화면</button><button class="mobile-step" type="button" data-step="-1" aria-label="이전 슬라이드">←</button><button class="mobile-step" type="button" data-step="1" aria-label="다음 슬라이드">→</button><span>이동 <kbd>←</kbd><kbd>→</kbd></span><span>노트 <kbd>N</kbd></span><span>목록 <kbd>O</kbd></span><span>전체화면 <kbd>F</kbd></span></div>
 <div class="deck"><div class="stage" id="stage">${renderedSlides}</div></div>
 <div class="notes-panel" id="notesPanel" aria-live="polite"></div>
 <div class="overview" id="overview" aria-label="슬라이드 목록"></div>
@@ -1398,6 +1407,7 @@ const html = `<!DOCTYPE html>
   const stage=document.getElementById('stage');
   const notesPanel=document.getElementById('notesPanel');
   const overview=document.getElementById('overview');
+  const fullscreenToggle=document.getElementById('fullscreenToggle');
   const markAssetMissing=(asset)=>asset.closest('.local-asset-shell')?.classList.add('asset-missing');
   document.querySelectorAll('[data-local-asset]').forEach(asset=>{
     asset.addEventListener('error',()=>markAssetMissing(asset));
@@ -1444,14 +1454,53 @@ const html = `<!DOCTYPE html>
       });
     }
   }
+  function syncFullscreenButton(){
+    const active=Boolean(document.fullscreenElement);
+    fullscreenToggle.textContent=active?'전체화면 종료':'전체화면';
+    fullscreenToggle.setAttribute('aria-pressed',String(active));
+  }
+  async function toggleFullscreen(){
+    try{
+      if(document.fullscreenElement)await document.exitFullscreen();
+      else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();
+      else throw new Error('Fullscreen API unavailable');
+    }catch(error){
+      fullscreenToggle.textContent='전체화면 미지원';
+      setTimeout(syncFullscreenButton,1500);
+    }
+  }
+  fullscreenToggle.addEventListener('click',toggleFullscreen);
+  addEventListener('fullscreenchange',syncFullscreenButton);
+  document.querySelectorAll('[data-step]').forEach(button=>{
+    button.addEventListener('click',()=>show(current+Number(button.dataset.step)));
+  });
+  const interactiveSelector='video,audio,button,a,input,textarea,select,[contenteditable="true"]';
+  let swipeStart=null;
+  stage.addEventListener('touchstart',(event)=>{
+    if(event.touches.length!==1)return;
+    if(event.target instanceof Element&&event.target.closest(interactiveSelector))return;
+    const touch=event.touches[0];
+    swipeStart={x:touch.clientX,y:touch.clientY,time:Date.now()};
+  },{passive:true});
+  stage.addEventListener('touchend',(event)=>{
+    if(!swipeStart||event.changedTouches.length!==1){swipeStart=null;return}
+    const touch=event.changedTouches[0];
+    const dx=touch.clientX-swipeStart.x;
+    const dy=touch.clientY-swipeStart.y;
+    const elapsed=Date.now()-swipeStart.time;
+    swipeStart=null;
+    if(elapsed>1200||Math.abs(dx)<48||Math.abs(dx)<Math.abs(dy)*1.2)return;
+    show(current+(dx<0?1:-1));
+  },{passive:true});
+  stage.addEventListener('touchcancel',()=>{swipeStart=null},{passive:true});
   addEventListener('keydown',(event)=>{
-    const interactive=event.target instanceof Element&&event.target.closest('video,audio,button,a,input,textarea,select,[contenteditable="true"]');
+    const interactive=event.target instanceof Element&&event.target.closest(interactiveSelector);
     if(interactive&&event.key!=='Escape')return;
     if(event.key==='ArrowRight'||event.key==='PageDown'||event.key===' '){event.preventDefault();show(current+1)}
     if(event.key==='ArrowLeft'||event.key==='PageUp'){event.preventDefault();show(current-1)}
     if(event.key.toLowerCase()==='n')toggleNotes();
     if(event.key.toLowerCase()==='o')toggleOverview();
-    if(event.key.toLowerCase()==='f')document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen();
+    if(event.key.toLowerCase()==='f')toggleFullscreen();
     if(event.key==='Home')show(0);
     if(event.key==='End')show(slides.length-1);
     if(event.key==='Escape'){notesPanel.classList.remove('show');overview.classList.remove('show')}
@@ -1464,6 +1513,6 @@ const html = `<!DOCTYPE html>
 </html>`;
 
 const normalizedHtml = html.replace(/[ \t]+$/gm, "");
-fs.writeFileSync(outputPath, normalizedHtml);
+fs.writeFileSync(outputPath, `${normalizedHtml}\n`);
 console.log(`Wrote ${outputPath}`);
 console.log(`Slides: ${slides.length}`);
