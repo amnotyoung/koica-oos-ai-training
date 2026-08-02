@@ -14,7 +14,10 @@ const shellCount = [...source.matchAll(shellPattern)].length;
 const publicVideoShellCount = [...source.matchAll(shellPattern)].filter((match) =>
   /\bdemo-video-frame\b/.test(match[1]),
 ).length;
-const fallbackShellCount = shellCount - publicVideoShellCount;
+const publicImageShellCount = [...source.matchAll(shellPattern)].filter((match) =>
+  /\bpublic-asset-shell\b/.test(match[1]),
+).length;
+const fallbackShellCount = shellCount - publicVideoShellCount - publicImageShellCount;
 
 if (shellCount === 0) {
   throw new Error("공개 대체 화면으로 전환할 local-asset-shell을 찾지 못했습니다.");
@@ -22,7 +25,7 @@ if (shellCount === 0) {
 
 let html = source.replace(shellPattern, (_match, classes) => {
   const normalized = classes.trim();
-  if (/\bdemo-video-frame\b/.test(normalized)) {
+  if (/\b(?:demo-video-frame|public-asset-shell)\b/.test(normalized)) {
     return `class="${normalized}"`;
   }
   return /\basset-missing\b/.test(normalized)
@@ -30,16 +33,17 @@ let html = source.replace(shellPattern, (_match, classes) => {
     : `class="${normalized} asset-missing"`;
 });
 
-html = html.replace(/<img\b[^>]*\bdata-local-asset\b[^>]*>/g, (tag) =>
-  tag.replace(/\s+src="[^"]*"/, ""),
-);
+html = html.replace(/<img\b[^>]*\bdata-local-asset\b[^>]*>/g, (tag) => {
+  if (/\bsrc="assets\/diagrams\/document-parsing-structure\.webp"/.test(tag)) return tag;
+  return tag.replace(/\s+src="[^"]*"/, "");
+});
 html = html.replace("<html lang=\"ko\">", "<html lang=\"ko\" data-public-build=\"github-pages\">");
 
 const markedShellCount = [
   ...html.matchAll(/class="[^"]*\blocal-asset-shell\b[^"]*\basset-missing\b[^"]*"/g),
 ].length;
 const unresolvedExcludedMedia =
-  /<img\b[^>]*\bsrc="assets\/(?:diagrams|memes)\//.test(html);
+  /<img\b[^>]*\bsrc="assets\/(?:diagrams\/(?!document-parsing-structure\.webp)|memes\/)/.test(html);
 const retainedVideoCount = [
   ...html.matchAll(/<source\b[^>]*\bsrc="assets\/video\/[^"]+-demo\.mp4"/g),
 ].length;
@@ -72,5 +76,6 @@ mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, html);
 console.log(
   `공개 발표자료 생성 완료: 영상 ${publicVideoShellCount}개 유지, ` +
+    `공개 이미지 ${publicImageShellCount}개 유지, ` +
     `내부 이미지 ${fallbackShellCount}개를 대체 화면으로 전환했습니다.`,
 );

@@ -15,7 +15,7 @@ KOICA 해외사무소 근무자를 대상으로 한 AI·데이터 활용 교육 
 | `.slide-build/build-slides.mjs` | Markdown 원본에서 HTML을 생성하는 빌드 스크립트 |
 | `.slide-build/playwright-audit.js` | 브라우저 렌더링 검수 스크립트 |
 | `assets/memes/` | 강의자 로컬 전용 밈 원본. 공개 저장소에서는 제외 |
-| `assets/diagrams/` | 강의자 로컬 전용 참고 도식. 공개 저장소에서는 제외 |
+| `assets/diagrams/` | 17번 공개 도식과 강의자 로컬 전용 참고 도식 |
 | `assets/video/` | 공개용 H.264 MP4·포스터. 원본 MOV는 로컬에서만 보관 |
 | `scripts/check-public-assets.sh` | 내부 자산이 Git에 추적되는지 검사하는 공개 전 점검 |
 | `participant-kit/` | 참가자 사전 배포용 안내·환경점검·가상 실습 프로젝트 |
@@ -59,7 +59,8 @@ py -m http.server 8000
 
 - 발표 내용은 Markdown에서 수정하고 빌드 결과인 HTML도 함께 커밋합니다.
 - `output/`의 렌더링 캡처와 `.playwright-cli/` 로그는 로컬 검수 산출물이므로 Git에서 제외합니다.
-- `artifacts/`, `assets/diagrams/`, 원본 MOV와 로컬 전용 밈 파일은 공개 Git 저장소에서 제외합니다.
+- `assets/diagrams/document-parsing-structure.webp`만 공개하고 나머지 참고 도식은 공개 Git 저장소에서 제외합니다.
+- `artifacts/`, 원본 MOV와 로컬 전용 밈 파일은 공개 Git 저장소에서 제외합니다.
 - `assets/video/`에서는 이름이 `*-demo.mp4`, `*-poster.jpg`인 공개 허용 자산만 추적합니다.
 - 내부용 밈 자산과 제작 기록은 공개 저장소에서 제외합니다.
 - 공개본에서는 밈 이미지 대신 같은 메시지의 텍스트 대체 화면을 사용합니다.

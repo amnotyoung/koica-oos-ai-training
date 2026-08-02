@@ -10,6 +10,7 @@ on:
       - scripts/build-public-pages.mjs
       - scripts/export-presentation-pdf.cjs
       - assets/video/**
+      - assets/diagrams/document-parsing-structure.webp
   workflow_dispatch:
 
 permissions:
@@ -40,6 +41,8 @@ jobs:
           node scripts/build-public-pages.mjs koica-oos-ai-data-training.html _site/index.html
           mkdir -p _site/assets/video
           cp assets/video/*-demo.mp4 assets/video/*-poster.jpg _site/assets/video/
+          mkdir -p _site/assets/diagrams
+          cp assets/diagrams/document-parsing-structure.webp _site/assets/diagrams/
           touch _site/.nojekyll
 
       - name: Install Chromium PDF renderer

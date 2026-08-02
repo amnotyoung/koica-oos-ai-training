@@ -15,7 +15,8 @@ __pycache__/
 
 # Internal source material and instructor-only media
 artifacts/
-assets/diagrams/
+assets/diagrams/*
+!assets/diagrams/document-parsing-structure.webp
 
 # Publish only web-optimized demos and posters; keep raw recordings local
 assets/video/*

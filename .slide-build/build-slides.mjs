@@ -341,7 +341,7 @@ function specialContent(slide) {
           <div>파일을 열 수 있다 <b>≠</b> 내용을 정확히 이해했다</div>
         </div>
         ${localImageFigure({
-          className: "parsing-structure-figure",
+          className: "parsing-structure-figure public-asset-shell",
           assetSource: "https://image.inblog.dev/?url=https%3A%2F%2Fsource.inblog.dev%2Fpost_image%2F2025-07-02T01%3A29%3A17.805Z-759de728-fd24-4db9-80d2-4763c3319577&amp;w=828&amp;q=85",
           src: "assets/diagrams/document-parsing-structure.webp",
           alt: "약제비 납입 확인서의 표 영역이 HTML 제목과 행·열 태그 구조로 변환되는 예시",
